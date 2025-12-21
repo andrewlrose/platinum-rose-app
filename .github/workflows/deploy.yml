@@ -19,12 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4  # 🔥 UPDATED to v4
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v4  # 🔥 UPDATED to v4
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20   # 🔥 CRITICAL FIX: Upgraded to Node 20 for Vite v7+
           cache: 'npm'
 
       - name: Install Dependencies
@@ -34,7 +34,7 @@ jobs:
         run: npm run build
 
       - name: Upload Artifact
-        uses: actions/upload-pages-artifact@v3  # 🔥 UPDATED to v3 (Fixes the error)
+        uses: actions/upload-pages-artifact@v3
         with:
           path: './dist'
 
@@ -47,4 +47,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4  # 🔥 UPDATED to v4
+        uses: actions/deploy-pages@v4
