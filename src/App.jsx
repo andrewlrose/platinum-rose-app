@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Activity, List, Trash2, DollarSign } from 'lucide-react';
+import { Trophy, Activity, List } from 'lucide-react';
 
 // --- IMPORTS: Modular Components ---
 import { WEEK_17_SCHEDULE } from './lib/constants';
 import Dashboard from './components/dashboard/Dashboard';
 import MatchupWizardModal from './components/modals/MatchupWizardModal';
+import MyCardModal from './components/modals/MyCardModal';
 
 function App() {
   // --- STATE MANAGEMENT ---
@@ -29,14 +30,15 @@ function App() {
   const handleBet = (gameId, type, selection, line) => {
     const game = WEEK_17_SCHEDULE.find(g => g.id === gameId);
     
-    // Prevent duplicate bets (optional logic)
     const newBet = {
       id: Date.now(),
       game: `${game.visitor} @ ${game.home}`,
+      gameId: gameId,
       selection,
-      type,
+      type, // 'spread' or 'total'
       line,
-      odds: -110 // Default odds
+      odds: -110, // Default odds
+      status: 'OPEN' // New bets start as OPEN
     };
     
     setMyBets([newBet, ...myBets]);
@@ -45,6 +47,16 @@ function App() {
 
   const removeBet = (id) => {
     setMyBets(myBets.filter(b => b.id !== id));
+  };
+
+  // New Handler: Locks selected bets (moves them to "Placed")
+  const handleLockBets = (betIds) => {
+    setMyBets(prev => prev.map(bet => {
+        if (betIds.includes(bet.id)) {
+            return { ...bet, status: 'PLACED' };
+        }
+        return bet;
+    }));
   };
 
   if (loading) return (
@@ -110,53 +122,22 @@ function App() {
           />
         )}
 
-        {/* VIEW 2: MY BETTING CARD */}
+        {/* VIEW 2: MY BETTING CARD (Now uses the Advanced Modal) */}
         {activeTab === 'mycard' && (
-          <div className="max-w-3xl mx-auto bg-[#1e1e1e] rounded-xl border border-[#333] p-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <List className="text-[#00d2be]"/> Your Active Bets
-            </h2>
-            
-            {myBets.length === 0 ? (
-              <div className="text-center py-10 text-gray-500 border border-dashed border-[#333] rounded-lg">
-                <DollarSign size={40} className="mx-auto mb-3 opacity-20"/>
-                <p>No bets placed yet.</p>
-                <p className="text-sm mt-1">Go to the Board and use the Wizard to add picks.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {myBets.map(bet => (
-                  <div key={bet.id} className="bg-[#252525] p-4 rounded-lg border border-[#333] flex justify-between items-center group hover:border-[#00d2be]/30 transition-colors">
-                    <div>
-                      <div className="text-xs text-gray-500 mb-1 flex items-center gap-2">
-                         <span>{bet.game}</span>
-                         <span className="w-1 h-1 rounded-full bg-gray-600"></span>
-                         <span className="uppercase">{bet.type}</span>
-                      </div>
-                      <div className="text-lg font-bold text-white flex items-center gap-2">
-                        {bet.selection} 
-                        <span className="text-[#00d2be] font-mono bg-[#00d2be]/10 px-1.5 rounded text-base">
-                          {bet.line > 0 ? `+${bet.line}` : bet.line}
-                        </span>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => removeBet(bet.id)} 
-                      className="p-2 hover:bg-rose-900/20 hover:text-rose-400 text-gray-600 rounded transition-colors"
-                      title="Remove Bet"
-                    >
-                      <Trash2 size={18}/>
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
+          <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
+            <MyCardModal 
+              bets={myBets} 
+              onRemoveBet={removeBet} 
+              onLockBets={handleLockBets}
+              onClearCard={() => setMyBets([])}
+              // Placeholder for Parlay creation until we add that logic
+              onCreateParlay={(ids, odds, type) => alert("Parlay logic coming soon!")}
+            />
           </div>
         )}
       </main>
 
       {/* --- MODAL LAYER --- */}
-      {/* We use the "Boolean trick" (!!selectedGame) to determine isOpen */}
       <MatchupWizardModal 
         isOpen={!!selectedGame}
         game={selectedGame} 
@@ -164,8 +145,6 @@ function App() {
         onClose={() => setSelectedGame(null)} 
         onBet={(id, type, sel, line) => {
           handleBet(id, type, sel, line);
-          // Note: We close the modal after placing a bet to give feedback
-          // If you want to place multiple bets, comment out the line below
           setSelectedGame(null); 
         }}
       />
