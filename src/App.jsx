@@ -1,271 +1,174 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Trophy, TrendingUp, Shield, Search, ArrowUpDown, 
-  Menu, RefreshCw, Calendar, Activity, Lock
+  Trophy, TrendingUp, Shield, Calendar, RefreshCw, 
+  ChevronRight, Activity, Lock, Save 
 } from 'lucide-react';
 
-// --- UTILITY COMPONENTS ---
+// --- 1. THE SCHEDULE (Week 17 Matchups) ---
+// Since our Python script doesn't fetch the schedule yet, we define it here.
+const WEEK_17_SCHEDULE = [
+  { id: 1, home: 'CHI', visitor: 'SEA', spread: -2.5, total: 42.5, time: 'Thu 8:15 PM' },
+  { id: 2, home: 'CIN', visitor: 'DEN', spread: -9.5, total: 43.5, time: 'Sat 1:00 PM' },
+  { id: 3, home: 'BUF', visitor: 'NYJ', spread: -13.5, total: 44.5, time: 'Sun 1:00 PM' },
+  { id: 4, home: 'CLE', visitor: 'MIA', spread: 3.5, total: 41.0, time: 'Sun 8:20 PM' },
+  { id: 5, home: 'PHI', visitor: 'DAL', spread: -2.5, total: 48.0, time: 'Sun 4:25 PM' },
+  { id: 6, home: 'NE', visitor: 'LAC', spread: -3.0, total: 40.5, time: 'Sun 1:00 PM' },
+  { id: 7, home: 'NO', visitor: 'LV', spread: -5.5, total: 42.0, time: 'Sun 1:00 PM' },
+  { id: 8, home: 'IND', visitor: 'TEN', spread: -4.0, total: 43.0, time: 'Sun 1:00 PM' },
+  { id: 9, home: 'JAX', visitor: 'HOU', spread: 1.5, total: 45.0, time: 'Sun 1:00 PM' },
+  { id: 10, home: 'LAR', visitor: 'ARI', spread: -6.5, total: 47.5, time: 'Sun 4:25 PM' },
+  { id: 11, home: 'WAS', visitor: 'ATL', spread: -3.0, total: 46.0, time: 'Sun 1:00 PM' },
+  { id: 12, home: 'TB', visitor: 'CAR', spread: -5.0, total: 41.5, time: 'Sun 1:00 PM' },
+  { id: 13, home: 'MIN', visitor: 'GB', spread: 4.5, total: 45.5, time: 'Sun 8:20 PM' },
+  { id: 14, home: 'SF', visitor: 'DET', spread: -4.5, total: 51.5, time: 'Mon 8:15 PM' },
+  { id: 15, home: 'PIT', visitor: 'KC', spread: 3.5, total: 44.0, time: 'Wed 1:00 PM' },
+  { id: 16, home: 'BAL', visitor: 'NYG', spread: -6.0, total: 43.0, time: 'Sun 1:00 PM' }
+];
 
-const Card = ({ children, className = "" }) => (
-  <div className={`bg-[#1e1e1e] rounded-xl p-6 shadow-lg border border-[#333] ${className}`}>
-    {children}
-  </div>
-);
+// --- 2. COMPONENTS (Built-in to avoid file errors) ---
 
-const StatBar = ({ value, max, color, inverse = false }) => {
-  // Normalize value to 0-100 scale based on max range
-  // Inverse is for stats where "Lower is Better" (like Defense EPA)
-  const percentage = Math.min(100, Math.max(0, (value / max) * 100));
-  
+const StatBadge = ({ label, value, goodCondition }) => {
+  const isGood = goodCondition ? value > 0 : value < 0;
+  const colorClass = isGood ? "text-green-400" : "text-rose-400";
   return (
-    <div className="w-full bg-[#333] h-2 rounded-full mt-2 overflow-hidden">
-      <div 
-        style={{ 
-          width: `${percentage}%`, 
-          backgroundColor: color 
-        }} 
-        className="h-full rounded-full transition-all duration-500" 
-      />
+    <div className="flex flex-col items-center">
+      <span className="text-[10px] text-gray-500 uppercase tracking-widest">{label}</span>
+      <span className={`font-mono font-bold text-sm ${colorClass}`}>
+        {value ? parseFloat(value).toFixed(2) : '-'}
+      </span>
     </div>
   );
 };
 
-const Badge = ({ children, color }) => (
-  <span style={{ backgroundColor: `${color}20`, color: color, border: `1px solid ${color}40` }} 
-    className="px-2 py-1 rounded text-xs font-bold uppercase tracking-wider">
-    {children}
-  </span>
-);
+const MatchupCard = ({ game, stats }) => {
+  const homeStats = stats.find(s => s.team === game.home) || {};
+  const visStats = stats.find(s => s.team === game.visitor) || {};
 
-// --- MAIN APP COMPONENT ---
+  // Simple "Edge" Calculation (Just for fun visuals)
+  const homeEdge = (parseFloat(homeStats.off_epa) || 0) - (parseFloat(visStats.def_epa) || 0);
+  const visEdge = (parseFloat(visStats.off_epa) || 0) - (parseFloat(homeStats.def_epa) || 0);
+
+  return (
+    <div className="bg-[#1e1e1e] rounded-xl border border-[#333] overflow-hidden shadow-lg hover:shadow-[#00d2be]/10 transition-all duration-300">
+      
+      {/* Header: Time & Line */}
+      <div className="bg-[#252525] px-4 py-2 flex justify-between items-center border-b border-[#333]">
+        <span className="text-xs text-gray-400 flex items-center gap-1">
+          <Calendar size={12} /> {game.time}
+        </span>
+        <span className="text-xs font-mono text-[#00d2be] bg-[#00d2be]/10 px-2 py-1 rounded">
+          {game.home} {game.spread > 0 ? '+' : ''}{game.spread} • {game.total}u
+        </span>
+      </div>
+
+      {/* Teams Grid */}
+      <div className="p-4 grid grid-cols-2 gap-4 relative">
+        
+        {/* Visitor */}
+        <div className="text-center relative z-10">
+          <h3 className="text-2xl font-black text-gray-200">{game.visitor}</h3>
+          <div className="mt-3 space-y-2">
+            <StatBadge label="Off EPA" value={visStats.off_epa} goodCondition={true} />
+            <StatBadge label="Def EPA" value={visStats.def_epa} goodCondition={false} />
+            <StatBadge label="Success" value={visStats.off_success * 100} goodCondition={true} />
+          </div>
+        </div>
+
+        {/* Home */}
+        <div className="text-center relative z-10 border-l border-[#333]">
+          <h3 className="text-2xl font-black text-gray-200">{game.home}</h3>
+          <div className="mt-3 space-y-2">
+            <StatBadge label="Off EPA" value={homeStats.off_epa} goodCondition={true} />
+            <StatBadge label="Def EPA" value={homeStats.def_epa} goodCondition={false} />
+            <StatBadge label="Success" value={homeStats.off_success * 100} goodCondition={true} />
+          </div>
+        </div>
+        
+        {/* VS Bubble */}
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#121212] border border-[#333] rounded-full w-8 h-8 flex items-center justify-center text-[10px] text-gray-500 z-20">
+          VS
+        </div>
+      </div>
+
+      {/* Action Bar */}
+      <div className="bg-[#1a1a1a] px-4 py-3 border-t border-[#333] flex justify-between items-center">
+        <div className="text-xs text-gray-500">
+           Edge: <span className={homeEdge > visEdge ? "text-green-400" : "text-rose-400"}>
+             {homeEdge > visEdge ? game.home : game.visitor}
+           </span>
+        </div>
+        <button className="text-xs bg-[#333] hover:bg-[#00d2be] hover:text-black text-white px-3 py-1.5 rounded transition-colors flex items-center gap-1">
+          Analysis <ChevronRight size={12} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// --- 3. MAIN APP ---
 
 function App() {
-  const [games, setGames] = useState([]);
+  const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortConfig, setSortConfig] = useState({ key: 'off_epa', direction: 'desc' });
-  const [activeTab, setActiveTab] = useState('overview'); // overview, offense, defense
-  const [lastUpdated, setLastUpdated] = useState(null);
 
-  // --- 1. DATA FETCHING (The New "Robot" Connection) ---
+  // Fetch the EPA data from your GitHub
   useEffect(() => {
     fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-data/main/weekly_stats.json")
       .then(res => res.json())
       .then(data => {
-        // Transform the flat JSON into the shape our app expects
-        // (If your JSON structure changes, we update this transformer)
-        setGames(data);
+        setStats(data);
         setLoading(false);
-        setLastUpdated(new Date().toLocaleTimeString());
       })
-      .catch(err => {
-        console.error("Data Load Error:", err);
-        setLoading(false);
-      });
+      .catch(err => console.error("Error fetching stats:", err));
   }, []);
-
-  // --- 2. SORTING ENGINE ---
-  const sortedData = [...games].sort((a, b) => {
-    let aVal = a[sortConfig.key];
-    let bVal = b[sortConfig.key];
-
-    // Handle numeric conversion safely
-    if (!isNaN(parseFloat(aVal))) aVal = parseFloat(aVal);
-    if (!isNaN(parseFloat(bVal))) bVal = parseFloat(bVal);
-
-    if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
-    if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
-    return 0;
-  });
-
-  const filteredData = sortedData.filter(team => 
-    team.team.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const requestSort = (key) => {
-    let direction = 'desc';
-    // If selecting Defense EPA, default to ascending (because lower is better)
-    if (key.includes('def_epa')) direction = 'asc';
-    
-    if (sortConfig.key === key && sortConfig.direction === 'desc') {
-      direction = 'asc';
-    } else if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
-  };
-
-  // --- 3. RENDER HELPERS ---
-  
-  // Helper to color code EPA numbers
-  const getEpaColor = (value, isDefense = false) => {
-    const num = parseFloat(value);
-    // For Defense: Negative is Good (Green), Positive is Bad (Red)
-    if (isDefense) return num < 0 ? '#4caf50' : '#ff5252';
-    // For Offense: Positive is Good (Green), Negative is Bad (Red)
-    return num > 0 ? '#4caf50' : '#ff5252';
-  };
 
   if (loading) return (
     <div className="min-h-screen bg-[#121212] flex items-center justify-center text-[#00d2be]">
-      <Activity className="animate-spin mr-3" /> Initializing Platinum Rose...
+      <Activity className="animate-spin mr-2" /> Loading Platinum Rose...
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] text-gray-200 font-sans selection:bg-[#00d2be] selection:text-black pb-20">
+    <div className="min-h-screen bg-[#0f0f0f] text-gray-200 font-sans pb-20">
       
-      {/* --- HEADER --- */}
-      <header className="bg-[#181818] border-b border-[#333] sticky top-0 z-50 backdrop-blur-md bg-opacity-90">
+      {/* HEADER */}
+      <header className="bg-[#181818] border-b border-[#333] sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          
-          {/* Logo Area */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#00d2be] to-[#00756a] rounded-lg flex items-center justify-center shadow-lg shadow-[#00d2be]/20">
-              <Trophy size={20} className="text-white" />
+            <div className="w-10 h-10 bg-[#00d2be] rounded flex items-center justify-center shadow-[0_0_15px_rgba(0,210,190,0.3)]">
+              <Trophy size={20} className="text-black" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">
-                PLATINUM ROSE
-              </h1>
-              <div className="flex items-center gap-2 text-xs text-gray-500 font-mono">
-                <span>WEEK 17</span>
-                <span className="w-1 h-1 rounded-full bg-gray-600"></span>
-                <span className="flex items-center gap-1 text-[#00d2be]">
-                  <Activity size={10} /> LIVE
-                </span>
-              </div>
+              <h1 className="text-2xl font-black tracking-tight text-white">PLATINUM ROSE</h1>
+              <p className="text-xs text-[#00d2be] uppercase tracking-widest">Week 17 • Live Dashboard</p>
             </div>
           </div>
-
-          {/* Controls */}
-          <div className="flex items-center gap-4">
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-2.5 text-gray-500" size={16} />
-              <input 
-                type="text" 
-                placeholder="Find Team..." 
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-[#252525] border border-[#333] text-sm rounded-full py-2 pl-10 pr-4 w-64 focus:outline-none focus:border-[#00d2be] focus:ring-1 focus:ring-[#00d2be] transition-all"
-              />
-            </div>
-            <button className="p-2 hover:bg-[#333] rounded-full transition-colors text-gray-400 hover:text-white">
-              <RefreshCw size={20} />
-            </button>
+          <div className="flex gap-2">
+             <button className="p-2 bg-[#252525] rounded hover:bg-[#333]"><RefreshCw size={18} /></button>
           </div>
         </div>
       </header>
 
-      {/* --- MAIN CONTENT --- */}
+      {/* DASHBOARD GRID */}
       <main className="max-w-7xl mx-auto px-4 py-8">
         
-        {/* Navigation Tabs */}
-        <div className="flex gap-4 mb-8 overflow-x-auto pb-2">
-          {['overview', 'offense', 'defense'].map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-6 py-2 rounded-full text-sm font-bold uppercase tracking-wide transition-all ${
-                activeTab === tab 
-                  ? 'bg-[#00d2be] text-black shadow-lg shadow-[#00d2be]/20 transform scale-105' 
-                  : 'bg-[#1e1e1e] text-gray-500 hover:bg-[#2a2a2a] hover:text-gray-300'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
+        {/* Controls */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <TrendingUp size={20} className="text-[#00d2be]" /> Matchup Analysis
+          </h2>
+          <div className="flex gap-2">
+             <span className="px-3 py-1 bg-[#252525] rounded text-xs text-gray-400 border border-[#333]">
+               Data Source: GitHub / nflfastR
+             </span>
+          </div>
         </div>
 
-        {/* --- DATA TABLE CARD --- */}
-        <Card className="overflow-hidden p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-[#252525] text-gray-400 text-xs uppercase tracking-wider">
-                  <th className="p-4 cursor-pointer hover:text-white" onClick={() => requestSort('team')}>
-                    Team <ArrowUpDown size={12} className="inline ml-1" />
-                  </th>
-                  
-                  {/* DYNAMIC COLUMNS BASED ON TAB */}
-                  {(activeTab === 'overview' || activeTab === 'offense') && (
-                    <>
-                      <th className="p-4 cursor-pointer hover:text-[#00d2be]" onClick={() => requestSort('off_epa')}>
-                        Off EPA <ArrowUpDown size={12} className="inline ml-1" />
-                      </th>
-                      <th className="p-4 cursor-pointer hover:text-[#00d2be]" onClick={() => requestSort('off_success')}>
-                        Success Rate <ArrowUpDown size={12} className="inline ml-1" />
-                      </th>
-                    </>
-                  )}
-                  
-                  {(activeTab === 'overview' || activeTab === 'defense') && (
-                    <>
-                      <th className="p-4 cursor-pointer hover:text-[#ff5252]" onClick={() => requestSort('def_epa')}>
-                        Def EPA <ArrowUpDown size={12} className="inline ml-1" />
-                      </th>
-                      <th className="p-4 cursor-pointer hover:text-[#ff5252]" onClick={() => requestSort('def_pass_epa')}>
-                         Pass Def <ArrowUpDown size={12} className="inline ml-1" />
-                      </th>
-                    </>
-                  )}
-                </tr>
-              </thead>
-              
-              <tbody className="divide-y divide-[#2a2a2a]">
-                {filteredData.map((team, idx) => (
-                  <tr key={idx} className="hover:bg-[#2a2a2a] transition-colors group">
-                    
-                    {/* Team Name */}
-                    <td className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="font-black text-xl text-white tracking-tight">{team.team}</div>
-                      </div>
-                    </td>
-
-                    {/* OFFENSE STATS */}
-                    {(activeTab === 'overview' || activeTab === 'offense') && (
-                      <>
-                        <td className="p-4 font-mono">
-                          <div style={{ color: getEpaColor(team.off_epa) }} className="font-bold text-lg">
-                            {parseFloat(team.off_epa).toFixed(3)}
-                          </div>
-                          {/* Visual Bar for EPA */}
-                          <div className="w-24 opacity-50 group-hover:opacity-100 transition-opacity">
-                            <StatBar value={parseFloat(team.off_epa) + 0.3} max={0.6} color={getEpaColor(team.off_epa)} />
-                          </div>
-                        </td>
-                        <td className="p-4 font-mono text-gray-300">
-                          {(parseFloat(team.off_success) * 100).toFixed(1)}%
-                        </td>
-                      </>
-                    )}
-
-                    {/* DEFENSE STATS */}
-                    {(activeTab === 'overview' || activeTab === 'defense') && (
-                      <>
-                        <td className="p-4 font-mono">
-                          <div style={{ color: getEpaColor(team.def_epa, true) }} className="font-bold text-lg">
-                            {parseFloat(team.def_epa).toFixed(3)}
-                          </div>
-                        </td>
-                         <td className="p-4 font-mono text-gray-300">
-                            {parseFloat(team.def_pass_epa).toFixed(3)}
-                        </td>
-                      </>
-                    )}
-
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </Card>
-
-        {/* Footer */}
-        <div className="mt-12 text-center text-gray-600 text-sm">
-          <p>Platinum Rose System v2.1 • Data updated: {lastUpdated}</p>
-          <p className="mt-2 text-xs">Generated by Python • Hosted on GitHub • Powered by React</p>
+        {/* The Grid of Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {WEEK_17_SCHEDULE.map(game => (
+            <MatchupCard key={game.id} game={game} stats={stats} />
+          ))}
         </div>
 
       </main>
