@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, Activity, List } from 'lucide-react';
 
 // --- IMPORTS: Modular Components ---
 import { WEEK_17_SCHEDULE } from './lib/constants';
+import Header from './components/layout/Header';
 import Dashboard from './components/dashboard/Dashboard';
 import MatchupWizardModal from './components/modals/MatchupWizardModal';
 import MyCardModal from './components/modals/MyCardModal';
@@ -11,7 +11,7 @@ function App() {
   // --- STATE MANAGEMENT ---
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' or 'mycard'
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'mycard', 'devlab', 'standings'
   const [selectedGame, setSelectedGame] = useState(null);  // Triggers the Wizard Modal
   const [myBets, setMyBets] = useState([]);
 
@@ -69,60 +69,32 @@ function App() {
     <div className="min-h-screen bg-[#0f0f0f] text-gray-200 font-sans pb-20 selection:bg-[#00d2be] selection:text-black">
       
       {/* --- HEADER --- */}
-      <header className="bg-[#181818] border-b border-[#333] sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          
-          {/* Logo Section */}
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#00d2be] rounded flex items-center justify-center shadow-lg shadow-[#00d2be]/20">
-              <Trophy size={20} className="text-black" />
-            </div>
-            <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">PLATINUM ROSE</h1>
-              <p className="text-xs text-[#00d2be] uppercase tracking-widest">Week 17 • Live</p>
-            </div>
-          </div>
-          
-          {/* Navigation Tabs */}
-          <div className="flex bg-[#252525] rounded p-1">
-            <button 
-              onClick={() => setActiveTab('dashboard')} 
-              className={`px-4 py-2 rounded text-sm font-bold flex items-center gap-2 transition-all ${
-                activeTab === 'dashboard' ? 'bg-[#333] text-white shadow' : 'text-gray-500 hover:text-gray-300'
-              }`}
-            >
-              <Activity size={16}/> Board
-            </button>
-            <button 
-              onClick={() => setActiveTab('mycard')} 
-              className={`px-4 py-2 rounded text-sm font-bold flex items-center gap-2 transition-all ${
-                activeTab === 'mycard' ? 'bg-[#333] text-white shadow' : 'text-gray-500 hover:text-gray-300'
-              }`}
-            >
-              <List size={16}/> My Card 
-              {myBets.length > 0 && (
-                <span className="bg-[#00d2be] text-black text-[10px] px-1.5 rounded-full min-w-[1.2rem] text-center">
-                  {myBets.length}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* Replaces the old static header with your new Pro Component */}
+      <Header 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab} 
+        cartCount={myBets.length}
+        // These are placeholders for future functionality
+        onSyncOdds={() => console.log("Sync triggered")}
+        onReset={() => console.log("Reset triggered")}
+        onSaveFile={() => console.log("Save triggered")}
+      />
 
       {/* --- MAIN CONTENT --- */}
       <main className="max-w-7xl mx-auto px-4 py-8">
         
         {/* VIEW 1: THE DASHBOARD GRID */}
         {activeTab === 'dashboard' && (
-          <Dashboard 
-            schedule={WEEK_17_SCHEDULE} 
-            stats={stats} 
-            onGameClick={setSelectedGame} 
-          />
+          <div className="animate-in fade-in zoom-in duration-300">
+            <Dashboard 
+              schedule={WEEK_17_SCHEDULE} 
+              stats={stats} 
+              onGameClick={setSelectedGame} 
+            />
+          </div>
         )}
 
-        {/* VIEW 2: MY BETTING CARD (Now uses the Advanced Modal) */}
+        {/* VIEW 2: MY BETTING CARD */}
         {activeTab === 'mycard' && (
           <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
             <MyCardModal 
@@ -130,11 +102,27 @@ function App() {
               onRemoveBet={removeBet} 
               onLockBets={handleLockBets}
               onClearCard={() => setMyBets([])}
-              // Placeholder for Parlay creation until we add that logic
               onCreateParlay={(ids, odds, type) => alert("Parlay logic coming soon!")}
             />
           </div>
         )}
+
+        {/* VIEW 3: DEV LAB (Placeholder for next step) */}
+        {activeTab === 'devlab' && (
+          <div className="flex flex-col items-center justify-center h-96 border-2 border-dashed border-[#333] rounded-xl">
+             <h2 className="text-2xl text-gray-500 font-bold mb-2">AI Developer Lab</h2>
+             <p className="text-gray-600">Coming in next update...</p>
+          </div>
+        )}
+
+        {/* VIEW 4: STANDINGS (Placeholder for next step) */}
+        {activeTab === 'standings' && (
+          <div className="flex flex-col items-center justify-center h-96 border-2 border-dashed border-[#333] rounded-xl">
+             <h2 className="text-2xl text-gray-500 font-bold mb-2">Expert Standings</h2>
+             <p className="text-gray-600">Coming in next update...</p>
+          </div>
+        )}
+
       </main>
 
       {/* --- MODAL LAYER --- */}
