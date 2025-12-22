@@ -8,23 +8,32 @@ export const STORAGE_KEY_BETS = 'platinum_rose_bets_v17';
 
 // --- SCHEDULE ---
 // This drives the Dashboard Grid
+// --- SCHEDULE (2025 REAL WEEK 17) ---
+// Times are ET. Spreads are illustrative based on current opening lines.
 export const WEEK_17_SCHEDULE = [
-  { id: 1, home: 'CHI', visitor: 'SEA', spread: -2.5, total: 42.5, time: 'Thu 8:15 PM' },
-  { id: 2, home: 'CIN', visitor: 'DEN', spread: -9.5, total: 43.5, time: 'Sat 1:00 PM' },
-  { id: 3, home: 'BUF', visitor: 'NYJ', spread: -13.5, total: 44.5, time: 'Sun 1:00 PM' },
-  { id: 4, home: 'CLE', visitor: 'MIA', spread: 3.5, total: 41.0, time: 'Sun 8:20 PM' },
-  { id: 5, home: 'PHI', visitor: 'DAL', spread: -2.5, total: 48.0, time: 'Sun 4:25 PM' },
-  { id: 6, home: 'NE', visitor: 'LAC', spread: -3.0, total: 40.5, time: 'Sun 1:00 PM' },
-  { id: 7, home: 'NO', visitor: 'LV', spread: -5.5, total: 42.0, time: 'Sun 1:00 PM' },
-  { id: 8, home: 'IND', visitor: 'TEN', spread: -4.0, total: 43.0, time: 'Sun 1:00 PM' },
-  { id: 9, home: 'JAX', visitor: 'HOU', spread: 1.5, total: 45.0, time: 'Sun 1:00 PM' },
-  { id: 10, home: 'LAR', visitor: 'ARI', spread: -6.5, total: 47.5, time: 'Sun 4:25 PM' },
-  { id: 11, home: 'WAS', visitor: 'ATL', spread: -3.0, total: 46.0, time: 'Sun 1:00 PM' },
-  { id: 12, home: 'TB', visitor: 'CAR', spread: -5.0, total: 41.5, time: 'Sun 1:00 PM' },
-  { id: 13, home: 'MIN', visitor: 'GB', spread: 4.5, total: 45.5, time: 'Sun 8:20 PM' },
-  { id: 14, home: 'SF', visitor: 'DET', spread: -4.5, total: 51.5, time: 'Mon 8:15 PM' },
-  { id: 15, home: 'PIT', visitor: 'KC', spread: 3.5, total: 44.0, time: 'Wed 1:00 PM' },
-  { id: 16, home: 'BAL', visitor: 'NYG', spread: -6.0, total: 43.0, time: 'Sun 1:00 PM' }
+  // CHRISTMAS DAY (Thu Dec 25)
+  { id: 1, home: 'WAS', visitor: 'DAL', spread: 5.5, total: 48.5, time: 'Thu 1:00 PM' },
+  { id: 2, home: 'MIN', visitor: 'DET', spread: 6.0, total: 51.0, time: 'Thu 4:30 PM' },
+  { id: 3, home: 'KC', visitor: 'DEN', spread: 13.5, total: 43.5, time: 'Thu 8:15 PM' },
+
+  // SATURDAY (Dec 27)
+  { id: 4, home: 'LAC', visitor: 'HOU', spread: -1.5, total: 46.0, time: 'Sat 4:30 PM' },
+  { id: 5, home: 'GB', visitor: 'BAL', spread: -2.5, total: 47.5, time: 'Sat 8:00 PM' },
+
+  // SUNDAY (Dec 28)
+  { id: 6, home: 'CAR', visitor: 'SEA', spread: 7.0, total: 41.5, time: 'Sun 1:00 PM' },
+  { id: 7, home: 'CIN', visitor: 'ARI', spread: -7.0, total: 45.0, time: 'Sun 1:00 PM' },
+  { id: 8, home: 'CLE', visitor: 'PIT', spread: 4.5, total: 39.5, time: 'Sun 1:00 PM' },
+  { id: 9, home: 'IND', visitor: 'JAX', spread: 6.5, total: 44.0, time: 'Sun 1:00 PM' },
+  { id: 10, home: 'MIA', visitor: 'TB', spread: 5.5, total: 46.5, time: 'Sun 1:00 PM' },
+  { id: 11, home: 'NYJ', visitor: 'NE', spread: 12.5, total: 38.0, time: 'Sun 1:00 PM' },
+  { id: 12, home: 'TEN', visitor: 'NO', spread: 2.5, total: 42.0, time: 'Sun 1:00 PM' },
+  { id: 13, home: 'LV', visitor: 'NYG', spread: 1.5, total: 40.5, time: 'Sun 4:05 PM' },
+  { id: 14, home: 'BUF', visitor: 'PHI', spread: -2.5, total: 49.0, time: 'Sun 4:25 PM' },
+  { id: 15, home: 'SF', visitor: 'CHI', spread: -2.5, total: 45.5, time: 'Sun 8:20 PM' },
+
+  // MONDAY (Dec 29)
+  { id: 16, home: 'ATL', visitor: 'LAR', spread: -3.0, total: 48.0, time: 'Mon 8:15 PM' }
 ];
 
 // --- EXPERTS LIBRARY ---
