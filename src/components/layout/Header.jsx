@@ -1,4 +1,3 @@
-// File: src/components/layout/Header.jsx
 import React, { useRef } from 'react';
 import { 
   RefreshCw, Trash2, Mic, Upload, 
@@ -7,37 +6,33 @@ import {
 } from 'lucide-react';
 
 const Header = ({ 
-  onSyncOdds, 
-  onReset, 
-  currentView, 
-  onNavigate, 
-  weekId, 
-  onOpenImport, 
-  onOpenAudio, 
-  onOpenContest, 
-  onOpenPulse,
-  onOpenSplits,
-  onOpenTeasers,
-  onSaveFile,
-  onLoadFile,
-  betCount 
+  activeTab, 
+  setActiveTab, 
+  cartCount = 0,
+  // Placeholders for future features
+  onSyncOdds = () => console.log("Sync triggered"),
+  onReset = () => console.log("Reset triggered"),
+  onSaveFile = () => console.log("Save triggered"),
+  onLoadFile = () => console.log("Load triggered")
 }) => {
   const fileInputRef = useRef(null);
 
+  // Helper for Navigation Tabs
   const NavTab = ({ id, label, icon: Icon }) => (
     <button 
-      onClick={() => onNavigate(id)}
+      onClick={() => setActiveTab(id)}
       className={`relative h-full px-6 flex items-center gap-2 font-bold text-sm transition-all border-b-2 ${
-        currentView === id 
+        activeTab === id 
           ? 'text-white border-rose-500 bg-slate-800/50' 
           : 'text-slate-400 border-transparent hover:text-white hover:bg-slate-800/30'
       }`}
     >
-      <Icon size={18} className={currentView === id ? "text-rose-400" : "text-slate-500"} />
+      <Icon size={18} className={activeTab === id ? "text-rose-400" : "text-slate-500"} />
       {label}
     </button>
   );
 
+  // Helper for Tool Buttons
   const ToolButton = ({ onClick, icon: Icon, title, color = "text-slate-400 hover:text-white" }) => (
     <button 
       onClick={onClick}
@@ -62,15 +57,15 @@ const Header = ({
           <div className="hidden md:block">
             <h1 className="text-white font-black leading-none tracking-tight text-lg">PLATINUM ROSE</h1>
             <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[10px] text-emerald-400 font-mono font-bold uppercase tracking-wider">Week {weekId}</span>
+                <span className="text-[10px] text-emerald-400 font-mono font-bold uppercase tracking-wider">Week 17 • Live</span>
             </div>
           </div>
         </div>
 
-        {/* CENTER: SYNC & TOOLS (Absolute Centered) */}
+        {/* CENTER: TOOLS (Visual Only for now) */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden xl:flex items-center gap-4">
             
-            {/* 1. SYNC BUTTON (Primary Action) */}
+            {/* SYNC BUTTON */}
             <button 
               onClick={onSyncOdds}
               className="flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-black transition-all shadow-lg shadow-indigo-900/20 hover:scale-105 mr-2"
@@ -78,31 +73,28 @@ const Header = ({
               <RefreshCw size={18} /> <span className="tracking-wide">SYNC ODDS</span>
             </button>
 
-            {/* DIVIDER */}
             <div className="w-px h-8 bg-slate-800"></div>
 
-            {/* 2. ANALYTICS GROUP */}
+            {/* ANALYTICS GROUP (Placeholders) */}
             <div className="flex items-center gap-2">
-               <ToolButton onClick={onOpenSplits} icon={Split} title="Betting Splits" color="text-indigo-400" />
-               <ToolButton onClick={onOpenTeasers} icon={List} title="Wong Teasers" color="text-purple-400" />
-               <ToolButton onClick={onOpenPulse} icon={Activity} title="Market Pulse" color="text-rose-400" />
-               <ToolButton onClick={onOpenContest} icon={Trophy} title="SuperContest" color="text-amber-400" />
+               <ToolButton onClick={() => alert("Splits Feature Coming Soon")} icon={Split} title="Betting Splits" color="text-indigo-400" />
+               <ToolButton onClick={() => alert("Teasers Feature Coming Soon")} icon={List} title="Wong Teasers" color="text-purple-400" />
+               <ToolButton onClick={() => alert("Pulse Feature Coming Soon")} icon={Activity} title="Market Pulse" color="text-rose-400" />
+               <ToolButton onClick={() => alert("Contest Feature Coming Soon")} icon={Trophy} title="SuperContest" color="text-amber-400" />
             </div>
 
-            {/* DIVIDER */}
             <div className="w-px h-8 bg-slate-800"></div>
 
-            {/* 3. INPUT GROUP */}
+            {/* INPUT GROUP */}
             <div className="flex items-center gap-2">
-               <ToolButton onClick={onOpenImport} icon={FileText} title="Bulk Text Import" />
-               <ToolButton onClick={onOpenAudio} icon={Mic} title="Audio Analysis" />
+               <ToolButton onClick={() => alert("Import Feature Coming Soon")} icon={FileText} title="Bulk Text Import" />
+               <ToolButton onClick={() => alert("Audio Feature Coming Soon")} icon={Mic} title="Audio Analysis" />
             </div>
         </div>
 
-        {/* RIGHT: ADMIN / FILE SYSTEM */}
+        {/* RIGHT: FILE SYSTEM */}
         <div className="flex items-center gap-2 z-10">
             
-            {/* SAVE */}
             <button 
               onClick={onSaveFile} 
               title="Save Week File" 
@@ -111,7 +103,6 @@ const Header = ({
               <Save size={18} /> <span className="hidden lg:inline">SAVE</span>
             </button>
             
-            {/* LOAD */}
             <button 
               onClick={() => fileInputRef.current.click()} 
               title="Load Week File" 
@@ -123,24 +114,24 @@ const Header = ({
 
             <div className="w-px h-8 bg-slate-800 mx-2"></div>
 
-            {/* RESET */}
             <button 
               onClick={onReset} 
               className="p-3 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-colors" 
-              title="Rollover Week / Reset"
+              title="Reset All"
             >
               <Trash2 size={20} />
             </button>
         </div>
       </div>
 
-      {/* --- BOTTOM ROW: CENTERED TABS --- */}
+      {/* --- BOTTOM ROW: NAVIGATION TABS --- */}
       <div className="bg-slate-950/50 border-t border-slate-800 h-12">
         <div className="container mx-auto px-4 h-full flex items-center justify-center gap-4 overflow-x-auto no-scrollbar">
           <NavTab id="dashboard" label="The Board" icon={BarChart2} />
+          <NavTab id="mycard" label={`My Card (${cartCount})`} icon={Save} />
+          {/* Future Tabs */}
           <NavTab id="devlab" label="AI Dev Lab" icon={Mic} />
           <NavTab id="standings" label="Expert Standings" icon={Upload} />
-          <NavTab id="mycard" label={`My Card (${betCount})`} icon={Save} />
         </div>
       </div>
 
