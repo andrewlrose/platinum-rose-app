@@ -1,29 +1,51 @@
 import React from 'react';
 import { Clock, Trophy, TrendingUp, BarChart2, Activity } from 'lucide-react';
 
-const Dashboard = ({ schedule, stats, onGameClick }) => {
+const Dashboard = ({ 
+  schedule,       // Data from App.jsx comes in as 'schedule'
+  stats,          // EPA Stats
+  onGameClick,    // For the Wizard
+  onShowHistory   // Optional
+}) => {
+
+  // --- BRIDGE: TRANSLATE DATA ---
+  // This turns our simple "schedule" into the rich "games" object your UI expects
+  const visibleGames = schedule.map(game => {
+    const homeStats = stats.find(s => s.team === game.home) || {};
+    const visStats = stats.find(s => s.team === game.visitor) || {};
+    
+    return {
+      ...game,
+      commence_time: new Date().toISOString(), // Fake date to satisfy sort
+      status: 'SCHEDULED',                     // Force 'Active' state
+      home_score: 0,
+      visitor_score: 0,
+      // Inject EPA stats so we can display them
+      homeStats,
+      visStats
+    };
+  });
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {schedule.length === 0 ? (
+      {visibleGames.length === 0 ? (
         <div className="col-span-full text-center py-20 bg-slate-900/50 rounded-xl border border-slate-800">
           <Clock className="w-12 h-12 text-slate-600 mx-auto mb-4" />
           <h3 className="text-xl text-slate-400 font-semibold">No Active Games</h3>
           <p className="text-slate-500">Waiting for schedule update...</p>
         </div>
       ) : (
-        schedule.map((game) => {
-          // 1. Find Stats for this game
-          const homeStats = stats.find(s => s.team === game.home) || {};
-          const visStats = stats.find(s => s.team === game.visitor) || {};
+        visibleGames.map((game) => {
+          // Use our translated stats
+          const { homeStats, visStats } = game; 
           
-          // 2. Determine Edge (Simple Logic for Visuals)
+          // Determine Edge
           const edge = parseFloat(homeStats.off_epa) > parseFloat(visStats.off_epa) ? game.home : game.visitor;
 
           return (
             <div key={game.id} className="relative bg-slate-900 border border-slate-800 hover:border-rose-500/50 rounded-xl overflow-hidden transition-all duration-300 group shadow-lg">
               
-              {/* Header: Date & Time */}
+              {/* Header: Time & Actions */}
               <div className="px-4 py-3 bg-slate-950/50 border-b border-slate-800 flex justify-between items-center">
                 <div className="flex items-center space-x-2 text-slate-400 text-sm">
                    <Clock className="w-4 h-4" />
@@ -32,12 +54,10 @@ const Dashboard = ({ schedule, stats, onGameClick }) => {
                 
                 {/* Action Icons */}
                 <div className="flex items-center space-x-1">
-                   {/* Placeholder for History - Can activate later */}
-                   <button className="p-1.5 hover:bg-slate-800 rounded text-slate-600 hover:text-slate-400 cursor-not-allowed" title="Line History (Coming Soon)">
+                   <button className="p-1.5 hover:bg-slate-800 rounded text-slate-600 hover:text-slate-400 cursor-not-allowed">
                       <TrendingUp className="w-4 h-4" />
                    </button>
-                   {/* Wizard Trigger */}
-                   <button onClick={() => onGameClick(game)} className="p-1.5 hover:bg-slate-800 rounded text-slate-500 hover:text-emerald-400 transition-colors" title="Matchup Wizard">
+                   <button onClick={() => onGameClick(game)} className="p-1.5 hover:bg-slate-800 rounded text-slate-500 hover:text-emerald-400 transition-colors">
                       <BarChart2 className="w-4 h-4" />
                    </button>
                 </div>
@@ -46,7 +66,7 @@ const Dashboard = ({ schedule, stats, onGameClick }) => {
               {/* Game Body */}
               <div className="p-4 space-y-4">
                 
-                {/* MATCHUP / EPA COMPARISON SECTION */}
+                {/* MATCHUP ROW */}
                 <div className="flex justify-between items-center pb-2">
                     {/* Visitor */}
                     <div className="text-left">
@@ -73,11 +93,10 @@ const Dashboard = ({ schedule, stats, onGameClick }) => {
                     </div>
                 </div>
 
-                {/* Betting Lines (Triggers Wizard for now) */}
+                {/* Betting Lines */}
                 <div className="grid grid-cols-2 gap-3 pt-2">
-                    {/* Spread Button */}
                     <button 
-                        onClick={() => onGameClick(game)} // Open Wizard
+                        onClick={() => onGameClick(game)}
                         className="relative group/btn flex flex-col items-center justify-center py-2 rounded-lg border bg-slate-800/50 border-slate-700 hover:border-rose-500/50 hover:bg-slate-800 transition-all"
                     >
                         <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Spread</span>
@@ -86,9 +105,8 @@ const Dashboard = ({ schedule, stats, onGameClick }) => {
                         </span>
                     </button>
 
-                    {/* Total Button */}
                     <button 
-                        onClick={() => onGameClick(game)} // Open Wizard
+                        onClick={() => onGameClick(game)}
                         className="relative group/btn flex flex-col items-center justify-center py-2 rounded-lg border bg-slate-800/50 border-slate-700 hover:border-rose-500/50 hover:bg-slate-800 transition-all"
                     >
                         <span className="text-xs text-slate-500 uppercase font-bold tracking-wider">Total</span>
@@ -101,13 +119,12 @@ const Dashboard = ({ schedule, stats, onGameClick }) => {
                 {/* Footer Info */}
                 <div className="flex justify-between items-center text-xs text-slate-500 pt-2 border-t border-slate-800/50">
                     <div className="flex items-center space-x-1">
-                        <span className="flex items-center text-slate-600" title="Edge">
+                         <span className="flex items-center text-slate-600">
                            <Trophy className="w-3 h-3 mr-1" />
                            Edge: <span className={edge === game.home ? "text-emerald-500" : "text-indigo-400"}>{edge}</span>
                         </span>
                     </div>
                     <div>
-                         {/* Weather Placeholder */}
                          <span className="truncate max-w-[120px]">72° Dome</span>
                     </div>
                 </div>
