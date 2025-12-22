@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 // --- IMPORTS: Modular Components ---
-import { WEEK_17_SCHEDULE } from './lib/constants';
+import { WEEK_17_SCHEDULE, INITIAL_EXPERTS } from './lib/constants';
 import Header from './components/layout/Header';
 import Dashboard from './components/dashboard/Dashboard';
+import Standings from './components/dashboard/Standings';
 import MatchupWizardModal from './components/modals/MatchupWizardModal';
 import MyCardModal from './components/modals/MyCardModal';
 
@@ -11,7 +12,7 @@ function App() {
   // --- STATE MANAGEMENT ---
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'mycard', 'devlab', 'standings'
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'mycard', 'standings', 'devlab'
   const [selectedGame, setSelectedGame] = useState(null);  // Triggers the Wizard Modal
   const [myBets, setMyBets] = useState([]);
 
@@ -49,7 +50,7 @@ function App() {
     setMyBets(myBets.filter(b => b.id !== id));
   };
 
-  // New Handler: Locks selected bets (moves them to "Placed")
+  // Handler: Locks selected bets (moves them to "Placed")
   const handleLockBets = (betIds) => {
     setMyBets(prev => prev.map(bet => {
         if (betIds.includes(bet.id)) {
@@ -69,12 +70,11 @@ function App() {
     <div className="min-h-screen bg-[#0f0f0f] text-gray-200 font-sans pb-20 selection:bg-[#00d2be] selection:text-black">
       
       {/* --- HEADER --- */}
-      {/* Replaces the old static header with your new Pro Component */}
       <Header 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
         cartCount={myBets.length}
-        // These are placeholders for future functionality
+        // Placeholders for future tools
         onSyncOdds={() => console.log("Sync triggered")}
         onReset={() => console.log("Reset triggered")}
         onSaveFile={() => console.log("Save triggered")}
@@ -94,7 +94,12 @@ function App() {
           </div>
         )}
 
-        {/* VIEW 2: MY BETTING CARD */}
+        {/* VIEW 2: EXPERT STANDINGS */}
+        {activeTab === 'standings' && (
+          <Standings experts={INITIAL_EXPERTS} />
+        )}
+
+        {/* VIEW 3: MY BETTING CARD */}
         {activeTab === 'mycard' && (
           <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300">
             <MyCardModal 
@@ -107,18 +112,10 @@ function App() {
           </div>
         )}
 
-        {/* VIEW 3: DEV LAB (Placeholder for next step) */}
+        {/* VIEW 4: DEV LAB (Placeholder) */}
         {activeTab === 'devlab' && (
-          <div className="flex flex-col items-center justify-center h-96 border-2 border-dashed border-[#333] rounded-xl">
+          <div className="flex flex-col items-center justify-center h-96 border-2 border-dashed border-[#333] rounded-xl bg-[#121212]">
              <h2 className="text-2xl text-gray-500 font-bold mb-2">AI Developer Lab</h2>
-             <p className="text-gray-600">Coming in next update...</p>
-          </div>
-        )}
-
-        {/* VIEW 4: STANDINGS (Placeholder for next step) */}
-        {activeTab === 'standings' && (
-          <div className="flex flex-col items-center justify-center h-96 border-2 border-dashed border-[#333] rounded-xl">
-             <h2 className="text-2xl text-gray-500 font-bold mb-2">Expert Standings</h2>
              <p className="text-gray-600">Coming in next update...</p>
           </div>
         )}
