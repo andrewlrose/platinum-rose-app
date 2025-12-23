@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mic, Users, Key, Zap, RefreshCw, CheckCircle } from 'lucide-react';
+import { X, Mic, Users, Key, Zap, RefreshCw, CheckCircle, Trash2, ShieldCheck } from 'lucide-react';
 import { INITIAL_EXPERTS } from '../../lib/constants'; 
 
 export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts = [] }) {
   const [text, setText] = useState('');
   
-  // 🔥 AUTO-LOAD KEY LOGIC
-  // This pulls from your .env file automatically
-  const [apiKey, setApiKey] = useState(import.meta.env.VITE_OPENAI_API_KEY || '');
+  // 🔥 SPONSOR MODE CHECK
+  // Check if a Global Key exists in the build (from Vercel/Netlify)
+  const GLOBAL_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
+  const hasGlobalKey = GLOBAL_KEY.startsWith('sk-');
+
+  // If Global Key exists, use it. Otherwise, look for User Key in LocalStorage.
+  const [userKey, setUserKey] = useState(localStorage.getItem('PR_OPENAI_KEY') || '');
   
+  // The actual key used for the transaction
+  const activeKey = hasGlobalKey ? GLOBAL_KEY : userKey;
+
   const [isProcessing, setIsProcessing] = useState(false);
   const [isNewSource, setIsNewSource] = useState(false); 
   const [selectedSource, setSelectedSource] = useState(""); 
@@ -17,40 +24,45 @@ export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts =
   const expertList = experts.length > 0 ? experts : INITIAL_EXPERTS;
   const uniqueShows = Array.from(new Set(expertList.map(e => e.source))).sort();
 
-  // Reset text when opening, but KEEP the key if it loaded from env
   useEffect(() => {
       if (isOpen) {
           setText('');
-          // Re-check env var if state is empty
-          if (!apiKey) setApiKey(import.meta.env.VITE_OPENAI_API_KEY || '');
+          // Update user key from storage if needed
+          const stored = localStorage.getItem('PR_OPENAI_KEY');
+          if (stored) setUserKey(stored);
       }
   }, [isOpen]);
+
+  const handleSaveUserKey = (val) => {
+      setUserKey(val);
+      if (val.startsWith('sk-')) {
+          localStorage.setItem('PR_OPENAI_KEY', val);
+      }
+  };
+
+  const handleClearUserKey = () => {
+      setUserKey('');
+      localStorage.removeItem('PR_OPENAI_KEY');
+  };
 
   if (!isOpen) return null;
 
   const handleAnalyze = async () => {
     if (!text.trim()) return;
 
-    if (isNewSource && !newSourceName.trim()) {
-        alert("Enter a show name.");
-        return;
-    }
-    if (!isNewSource && !selectedSource) {
-        alert("Select a show.");
-        return;
-    }
+    if (isNewSource && !newSourceName.trim()) { alert("Enter a show name."); return; }
+    if (!isNewSource && !selectedSource) { alert("Select a show."); return; }
+    if (!activeKey) { alert("No API Key found."); return; }
 
     setIsProcessing(true);
     
     const sourceData = {
         name: isNewSource ? newSourceName : selectedSource,
         isNew: isNewSource,
-        apiKey: apiKey.trim()
+        apiKey: activeKey // Use whichever key is active
     };
 
-    // Send to App.jsx for processing
     await onAnalyze(text, sourceData);
-    
     setIsProcessing(false);
   };
 
@@ -61,12 +73,14 @@ export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts =
         {/* Header */}
         <div className="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-950">
            <div className="flex items-center gap-3">
-             <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 text-indigo-400">
-                <Mic size={24} />
+             <div className={`p-2 rounded-lg border ${hasGlobalKey ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400'}`}>
+                {hasGlobalKey ? <ShieldCheck size={24} /> : <Mic size={24} />}
              </div>
              <div>
                 <h3 className="font-bold text-white text-lg">AI Transcript Analyzer</h3>
-                <p className="text-xs text-slate-400">Powered by OpenAI GPT-4o</p>
+                <p className="text-xs text-slate-400">
+                    {hasGlobalKey ? "Platinum Pro Access Enabled" : "Client-Side Processing"}
+                </p>
              </div>
            </div>
            <button onClick={onClose} className="p-2 bg-slate-800 rounded-full text-slate-500 hover:text-white transition-colors"><X size={20}/></button>
@@ -75,24 +89,49 @@ export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts =
         {/* Body */}
         <div className="p-6 flex-1 flex flex-col gap-6 overflow-y-auto custom-scrollbar bg-slate-900">
            
-           {/* API KEY INPUT */}
-           <div className={`border p-4 rounded-xl transition-colors ${apiKey ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-slate-950 border-slate-700'}`}>
-               <label className="text-[10px] font-bold uppercase flex items-center gap-2 mb-2 text-slate-400 tracking-wider">
-                   <Key size={12} className={apiKey ? "text-emerald-400" : "text-slate-500"} /> 
-                   {apiKey ? <span className="text-emerald-400">API Key Active</span> : "OpenAI API Key Required"}
-               </label>
-               {apiKey ? (
-                   <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono">
-                       <CheckCircle size={14} /> Key loaded securely from environment.
+           {/* API KEY SECTION */}
+           <div className={`border p-4 rounded-xl transition-colors ${activeKey ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-slate-950 border-slate-700'}`}>
+               
+               {/* SCENARIO A: YOU are sponsoring the key (Global Key) */}
+               {hasGlobalKey ? (
+                   <div className="flex items-center gap-3">
+                       <div className="bg-emerald-500/20 p-2 rounded-full text-emerald-400">
+                           <ShieldCheck size={18} />
+                       </div>
+                       <div>
+                           <div className="text-sm font-bold text-white">Platinum Access Active</div>
+                           <div className="text-xs text-emerald-400">No personal key required. System is ready.</div>
+                       </div>
                    </div>
                ) : (
-                   <input 
-                       type="password" 
-                       placeholder="sk-..."
-                       className="w-full bg-slate-900 border border-slate-700 text-white rounded p-2 text-sm focus:border-indigo-500 focus:outline-none font-mono"
-                       value={apiKey}
-                       onChange={(e) => setApiKey(e.target.value)}
-                   />
+               /* SCENARIO B: User must provide key */
+                   <>
+                       <div className="flex justify-between items-center mb-2">
+                            <label className="text-[10px] font-bold uppercase flex items-center gap-2 text-slate-400 tracking-wider">
+                                <Key size={12} className={userKey ? "text-emerald-400" : "text-slate-500"} /> 
+                                {userKey ? <span className="text-emerald-400">User Key Saved</span> : "OpenAI API Key Required"}
+                            </label>
+                            {userKey && (
+                                <button onClick={handleClearUserKey} className="text-[10px] text-slate-500 hover:text-rose-400 flex items-center gap-1">
+                                    <Trash2 size={10} /> Clear
+                                </button>
+                            )}
+                       </div>
+                       
+                       {userKey ? (
+                           <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono bg-emerald-900/10 p-2 rounded border border-emerald-500/10">
+                               <CheckCircle size={14} /> Key loaded from your browser.
+                           </div>
+                       ) : (
+                           <input 
+                               type="password" 
+                               placeholder="sk-..."
+                               className="w-full bg-slate-900 border border-slate-700 text-white rounded p-2 text-sm focus:border-indigo-500 focus:outline-none font-mono"
+                               value={userKey}
+                               onChange={(e) => handleSaveUserKey(e.target.value)}
+                           />
+                       )}
+                   </>
                )}
            </div>
 
@@ -129,10 +168,10 @@ export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts =
 
            {/* TRANSCRIPT INPUT */}
            <div className="flex-1 min-h-[200px] relative flex flex-col">
-               <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 tracking-wider">Paste Transcript / Notes</label>
+               <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 tracking-wider">Paste Transcript</label>
                <textarea 
                   className="flex-1 w-full bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-300 focus:border-indigo-500 focus:outline-none resize-none leading-relaxed"
-                  placeholder='Paste raw text here... The AI will extract picks, lines, and rationale automatically.'
+                  placeholder='Paste raw text here...'
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                />
@@ -145,8 +184,8 @@ export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts =
            
            <button 
                 onClick={handleAnalyze} 
-                disabled={!text || isProcessing}
-                className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg ${isProcessing ? 'bg-indigo-600 cursor-wait' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20'}`}
+                disabled={!text || isProcessing || !activeKey}
+                className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg ${isProcessing ? 'bg-indigo-600 cursor-wait' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 disabled:opacity-50 disabled:cursor-not-allowed'}`}
             >
               {isProcessing ? (
                   <><RefreshCw size={18} className="animate-spin" /> Analyzing...</>
