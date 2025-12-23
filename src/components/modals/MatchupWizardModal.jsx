@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { X, Wand2, User, Quote, Microscope, Target, DollarSign, TrendingUp, Shield, Zap } from 'lucide-react';
+import { X, Wand2, User, Quote, Microscope, Target, DollarSign, TrendingUp, Shield, Zap, Activity } from 'lucide-react';
 
 // --- 1. SHARED LOGOS ---
 const TEAM_LOGOS = {
@@ -7,7 +7,7 @@ const TEAM_LOGOS = {
   "Cardinals": "https://a.espncdn.com/i/teamlogos/nfl/500/ari.png", "Falcons": "https://a.espncdn.com/i/teamlogos/nfl/500/atl.png", "Ravens": "https://a.espncdn.com/i/teamlogos/nfl/500/bal.png", "Bills": "https://a.espncdn.com/i/teamlogos/nfl/500/buf.png", "Panthers": "https://a.espncdn.com/i/teamlogos/nfl/500/car.png", "Bears": "https://a.espncdn.com/i/teamlogos/nfl/500/chi.png", "Bengals": "https://a.espncdn.com/i/teamlogos/nfl/500/cin.png", "Browns": "https://a.espncdn.com/i/teamlogos/nfl/500/cle.png", "Cowboys": "https://a.espncdn.com/i/teamlogos/nfl/500/dal.png", "Broncos": "https://a.espncdn.com/i/teamlogos/nfl/500/den.png", "Lions": "https://a.espncdn.com/i/teamlogos/nfl/500/det.png", "Packers": "https://a.espncdn.com/i/teamlogos/nfl/500/gb.png", "Texans": "https://a.espncdn.com/i/teamlogos/nfl/500/hou.png", "Colts": "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png", "Jaguars": "https://a.espncdn.com/i/teamlogos/nfl/500/jax.png", "Chiefs": "https://a.espncdn.com/i/teamlogos/nfl/500/kc.png", "Raiders": "https://a.espncdn.com/i/teamlogos/nfl/500/lv.png", "Chargers": "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png", "Rams": "https://a.espncdn.com/i/teamlogos/nfl/500/lar.png", "Dolphins": "https://a.espncdn.com/i/teamlogos/nfl/500/mia.png", "Vikings": "https://a.espncdn.com/i/teamlogos/nfl/500/min.png", "Patriots": "https://a.espncdn.com/i/teamlogos/nfl/500/ne.png", "Saints": "https://a.espncdn.com/i/teamlogos/nfl/500/no.png", "Giants": "https://a.espncdn.com/i/teamlogos/nfl/500/nyg.png", "Jets": "https://a.espncdn.com/i/teamlogos/nfl/500/nyj.png", "Eagles": "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png", "Steelers": "https://a.espncdn.com/i/teamlogos/nfl/500/pit.png", "49ers": "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png", "Seahawks": "https://a.espncdn.com/i/teamlogos/nfl/500/sea.png", "Buccaneers": "https://a.espncdn.com/i/teamlogos/nfl/500/tb.png", "Titans": "https://a.espncdn.com/i/teamlogos/nfl/500/ten.png", "Commanders": "https://a.espncdn.com/i/teamlogos/nfl/500/was.png", "Washington": "https://a.espncdn.com/i/teamlogos/nfl/500/was.png"
 };
 
-// --- 2. PICK ITEM COMPONENT (Restored from your file) ---
+// --- 2. PICK ITEM COMPONENT ---
 const PickItem = ({ pick }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const hasRationale = pick.rationale && Array.isArray(pick.rationale) && pick.rationale.length > 0;
@@ -81,11 +81,10 @@ const RankBadge = ({ rank, type }) => {
 };
 
 // --- MAIN COMPONENT ---
-// 🔥 FIX: We now accept 'game' and 'stats' from App.jsx, AND optional currentWizardData
 export default function MatchupWizardModal({ isOpen, onClose, game, onBet, stats, currentWizardData }) {
   const [selectedBet, setSelectedBet] = useState(null);
 
-  // --- MERGE DATA: If Expert Data isn't passed, try to find it in game object ---
+  // --- MERGE DATA ---
   const expertData = currentWizardData || game?.consensus || { expertPicks: { spread: [], total: [] } };
   const hasExpertData = expertData.expertPicks && (expertData.expertPicks.spread.length > 0 || expertData.expertPicks.total.length > 0);
 
@@ -123,15 +122,29 @@ export default function MatchupWizardModal({ isOpen, onClose, game, onBet, stats
 
   const BetButton = ({ type, label, value, edge }) => {
       const isSelected = selectedBet === type;
+      // 🔥 FIX: Toggle logic
+      const handleClick = () => {
+          if (isSelected) setSelectedBet(null);
+          else setSelectedBet(type);
+      };
+
+      // 🔥 FIX: Format value correctly for Totals vs Spreads
+      let displayValue = value;
+      if (type.includes('total')) {
+          displayValue = value; // e.g. 48.5
+      } else {
+          displayValue = value > 0 ? `+${value}` : value;
+      }
+
       return (
           <button 
-            onClick={() => setSelectedBet(type)}
+            onClick={handleClick}
             className={`relative w-full p-3 rounded-xl border flex flex-col items-center justify-center transition-all ${
                 isSelected ? 'bg-emerald-900/40 border-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.3)]' : 'bg-slate-800 border-slate-700 hover:bg-slate-700'
             }`}
           >
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1">{label}</span>
-              <span className="text-lg font-black text-white">{value > 0 && type !== 'total' ? `+${value}` : value}</span>
+              <span className="text-lg font-black text-white">{displayValue}</span>
               {edge && <div className="absolute -top-2 -right-2 bg-purple-600 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold shadow-lg animate-pulse">AI EDGE</div>}
           </button>
       );
@@ -170,26 +183,30 @@ export default function MatchupWizardModal({ isOpen, onClose, game, onBet, stats
         <div className="flex-1 overflow-y-auto custom-scrollbar">
             {/* --- SECTION 2: STATS & BETTING --- */}
             <div className="p-6 bg-slate-900 border-b border-slate-800">
+                {/* 🔥 FIX: Cleaned up Icon Spacing */}
                 <div className="grid grid-cols-2 gap-4 mb-6 bg-slate-950/50 p-3 rounded-xl border border-slate-800/50">
                     <div className="flex justify-between items-center px-4 border-r border-slate-800">
                         <RankBadge rank={vRank.off} type="OFF" />
-                        <TrendingUp size={16} className="text-slate-600" />
+                        <div className="px-2 py-1 bg-slate-800 rounded text-[9px] font-bold text-slate-500 uppercase">VS</div>
                         <RankBadge rank={hRank.off} type="OFF" />
                     </div>
                     <div className="flex justify-between items-center px-4">
                         <RankBadge rank={vRank.def} type="DEF" />
-                        <Shield size={16} className="text-slate-600" />
+                        <div className="px-2 py-1 bg-slate-800 rounded text-[9px] font-bold text-slate-500 uppercase">VS</div>
                         <RankBadge rank={hRank.def} type="DEF" />
                     </div>
                 </div>
 
                 <div className="space-y-4">
                     <div className="text-sm font-bold text-white flex items-center gap-2"><Target size={16} className="text-emerald-400" /> Select Your Wager</div>
+                    
+                    {/* 🔥 FIX: Passed game.total into the value prop for Totals */}
                     <div className="grid grid-cols-3 gap-3">
                         <BetButton type="vis_spread" label={`${game.visitor} Spread`} value={game.spread * -1} edge={edgeSide === game.visitor} />
-                        <BetButton type="total_over" label={`Over ${game.total}`} value="O" />
+                        <BetButton type="total_over" label="Over" value={game.total} />
                         <BetButton type="home_spread" label={`${game.home} Spread`} value={game.spread} edge={edgeSide === game.home} />
                     </div>
+                    
                     {/* Action Button */}
                     <button 
                         onClick={() => { if(selectedBet) { onBet(game.id, 'spread', selectedBet, -110); onClose(); } }}
@@ -201,7 +218,7 @@ export default function MatchupWizardModal({ isOpen, onClose, game, onBet, stats
                 </div>
             </div>
 
-            {/* --- SECTION 3: EXPERT INTEL (Restored) --- */}
+            {/* --- SECTION 3: EXPERT INTEL --- */}
             <div className="p-6 bg-slate-900">
                 <div className="flex items-center gap-2 mb-4">
                     <Wand2 size={20} className="text-indigo-400" />
