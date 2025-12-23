@@ -8,15 +8,15 @@ import Standings from './components/dashboard/Standings';
 import MatchupWizardModal from './components/modals/MatchupWizardModal';
 import MyCardModal from './components/modals/MyCardModal';
 import DevLab from './components/dev-lab/DevLab';
-import SplitsModal from './components/modals/SplitsModal'; // <--- NEW IMPORT
+import SplitsModal from './components/modals/SplitsModal'; // <--- MAKE SURE THIS IS HERE
 
 function App() {
   const [stats, setStats] = useState([]);
-  const [splits, setSplits] = useState({}); // <--- NEW STATE FOR SPLITS
+  const [splits, setSplits] = useState({}); 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedGame, setSelectedGame] = useState(null);
-  const [showSplits, setShowSplits] = useState(false); // <--- NEW MODAL STATE
+  const [showSplits, setShowSplits] = useState(false); // <--- CONTROL STATE FOR MODAL
   const [myBets, setMyBets] = useState([]);
   const [simResults, setSimResults] = useState({});
 
@@ -34,13 +34,11 @@ function App() {
   }, []);
 
   // --- MERGE SPLITS INTO SCHEDULE ---
-  // This maps the fetched splits data to the game ID
   const gamesWithSplits = WEEK_17_SCHEDULE.map(game => ({
       ...game,
       splits: splits[game.id] || null
   }));
 
-  // ... (Keep handleBet, removeBet, handleLockBets as they were) ...
   const handleBet = (gameId, type, selection, line) => {
     const game = WEEK_17_SCHEDULE.find(g => g.id === gameId);
     const newBet = { id: Date.now(), game: `${game.visitor} @ ${game.home}`, gameId, selection, type, line, odds: -110, status: 'OPEN' };
@@ -60,7 +58,7 @@ function App() {
         setActiveTab={setActiveTab} 
         cartCount={myBets.length} 
         onSyncOdds={() => console.log("Sync")}
-        // 🔥 WIRE UP THE BUTTON
+        // 🔥 THIS LINE CONNECTS THE BUTTON
         onOpenSplits={() => setShowSplits(true)}
       />
 
@@ -74,7 +72,7 @@ function App() {
       {/* --- MODALS --- */}
       <MatchupWizardModal isOpen={!!selectedGame} game={selectedGame} stats={stats} onClose={() => setSelectedGame(null)} onBet={(id, type, sel, line) => { handleBet(id, type, sel, line); setSelectedGame(null); }} />
       
-      {/* 🔥 NEW SPLITS MODAL */}
+      {/* 🔥 THE SPLITS MODAL */}
       <SplitsModal 
         isOpen={showSplits} 
         onClose={() => setShowSplits(false)} 
