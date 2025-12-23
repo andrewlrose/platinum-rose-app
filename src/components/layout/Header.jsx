@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Trophy, FileText, Mic2, RefreshCw, Activity, ListFilter, Split, ShoppingBag, Zap, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, Trophy, Mic2, RefreshCw, Activity, ListFilter, Split, ShoppingBag, Save, UploadCloud, RotateCcw } from 'lucide-react';
 
 export default function Header({ 
   activeTab, 
@@ -8,7 +8,11 @@ export default function Header({
   onSyncOdds, 
   onOpenSplits,   
   onOpenTeasers,  
-  onOpenContest   
+  onOpenContest,
+  // 🔥 NEW: Add these props for the data buttons
+  onLoad,
+  onSave,
+  onReset
 }) {
   
   const NavTab = ({ id, label, icon: Icon }) => (
@@ -40,6 +44,20 @@ export default function Header({
       </button>
   );
 
+  // 🔥 NEW: IconButton for the top right actions
+  const IconButton = ({ onClick, icon: Icon, label, colorClass = "text-slate-400 hover:text-white" }) => (
+    <button 
+      onClick={onClick} 
+      className={`p-1.5 rounded-lg border border-slate-700 bg-slate-800/50 hover:bg-slate-800 transition-all group relative ${colorClass}`}
+      title={label}
+    >
+        <Icon size={16} />
+        <span className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none transition-opacity z-50">
+            {label}
+        </span>
+    </button>
+  );
+
   return (
     <header className="sticky top-0 z-40 bg-slate-950 shadow-2xl">
       
@@ -62,16 +80,23 @@ export default function Header({
             </div>
 
             {/* TOOLS (Right Side) */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+                {/* 🔥 NEW: Data Management Buttons */}
+                <div className="hidden md:flex items-center gap-1 mr-2">
+                    <IconButton onClick={onLoad} icon={UploadCloud} label="Load Data" colorClass="text-blue-400 hover:text-blue-300 hover:border-blue-500/30" />
+                    <IconButton onClick={onSave} icon={Save} label="Save Picks" colorClass="text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/30" />
+                    <IconButton onClick={onReset} icon={RotateCcw} label="Reset" colorClass="text-rose-400 hover:text-rose-300 hover:border-rose-500/30" />
+                </div>
+
+                <div className="h-6 w-px bg-slate-800 mx-1 hidden md:block"></div>
+
                 <button 
                     onClick={onSyncOdds}
-                    className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-bold text-[10px] shadow-lg shadow-indigo-900/20 transition-all mr-2"
+                    className="flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-lg font-bold text-[10px] shadow-lg shadow-indigo-900/20 transition-all"
                 >
                     <RefreshCw size={12} /> SYNC
                 </button>
                 
-                <div className="h-6 w-px bg-slate-800 mx-1 hidden md:block"></div>
-
                 <div className="hidden md:flex items-center gap-2">
                     <ToolButton onClick={onOpenTeasers} icon={Split} label="Teasers" colorClass="text-purple-400" />
                     <ToolButton onClick={onOpenContest} icon={ListFilter} label="Contest" colorClass="text-orange-400" />

@@ -8,7 +8,7 @@ import Standings from './components/dashboard/Standings';
 import MatchupWizardModal from './components/modals/MatchupWizardModal';
 import MyCardModal from './components/modals/MyCardModal';
 import DevLab from './components/dev-lab/DevLab';
-import SplitsModal from './components/modals/SplitsModal'; // Legacy, kept for reference
+import SplitsModal from './components/modals/SplitsModal'; 
 import WongTeaserModal from './components/modals/WongTeaserModal';
 import PulseModal from './components/modals/PulseModal';       // 🔥 NEW
 import ContestLinesModal from './components/modals/ContestLinesModal'; // 🔥 NEW
@@ -74,9 +74,14 @@ function App() {
         onSyncOdds={() => console.log("Sync")}
         
         // --- WIRING THE BUTTONS ---
-        onOpenSplits={() => setShowPulse(true)}     // 🔥 "Splits" button now opens Pulse (Upgrade)
+        onOpenSplits={() => setShowPulse(true)}     // 🔥 "Pulse" button now opens PulseModal
         onOpenTeasers={() => setShowTeasers(true)}
         onOpenContest={() => setShowContest(true)}  // 🔥 New Button Action
+        
+        // --- DATA BUTTONS ---
+        onLoad={() => alert("Load Data functionality coming soon!")} 
+        onSave={() => alert("Save Picks functionality coming soon!")} 
+        onReset={() => { if(window.confirm("Reset all picks?")) setMyBets([]); }}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -122,6 +127,13 @@ function App() {
       <WongTeaserModal 
         isOpen={showTeasers} 
         onClose={() => setShowTeasers(false)} 
+        games={gamesWithSplits} 
+      />
+      
+      {/* Legacy Modal (Optional, kept to prevent errors if referenced elsewhere) */}
+      <SplitsModal 
+        isOpen={showSplits} 
+        onClose={() => setShowSplits(false)} 
         games={gamesWithSplits} 
       />
 
