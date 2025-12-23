@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mic, Users, Key, Zap, Play } from 'lucide-react';
+import { X, Mic, Users, Key, Zap, Play, CheckCircle } from 'lucide-react';
 import { INITIAL_EXPERTS } from '../../lib/constants'; 
 
 export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts = [] }) {
   const [text, setText] = useState('');
-  
-  // 1. AUTO-LOAD KEY FROM ENV
   const [apiKey, setApiKey] = useState(import.meta.env.VITE_OPENAI_API_KEY || '');
-  
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Source Selection State
   const [isNewSource, setIsNewSource] = useState(false); 
   const [selectedSource, setSelectedSource] = useState(""); 
   const [newSourceName, setNewSourceName] = useState('');
 
+  // Merge initial experts with any new ones passed in
   const expertList = experts.length > 0 ? experts : INITIAL_EXPERTS;
   const uniqueShows = Array.from(new Set(expertList.map(e => e.source))).sort();
 
-  // Reset text when opening, but KEEP the key
   useEffect(() => {
       if (isOpen) {
           setText('');
@@ -29,14 +28,9 @@ export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts =
   const handleAnalyze = async () => {
     if (!text.trim()) return;
 
-    if (isNewSource && !newSourceName.trim()) {
-        alert("Enter a show name.");
-        return;
-    }
-    if (!isNewSource && !selectedSource) {
-        alert("Select a show.");
-        return;
-    }
+    // Validation
+    if (isNewSource && !newSourceName.trim()) { alert("Enter a show name."); return; }
+    if (!isNewSource && !selectedSource) { alert("Select a show."); return; }
 
     setIsProcessing(true);
     
@@ -46,80 +40,92 @@ export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts =
         apiKey: apiKey.trim()
     };
 
-    // Wait for the App to process the data
+    // Trigger the analysis in App.jsx
     await onAnalyze(text, sourceData);
     
     setIsProcessing(false);
-    
-    // --- CRITICAL FIX ---
-    // DO NOT call onClose() here. 
-    // The App.jsx handles the transition to the Verification Modal automatically.
-    // If we call onClose() here, it wipes out the Verification Modal immediately.
+    // Note: We DO NOT close the modal here. App.jsx will swap this modal for the Review Modal.
   };
 
   return (
-    <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
-      <div className="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-slate-900 border border-slate-700 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         
         {/* Header */}
-        <div className="p-4 border-b border-slate-800 flex justify-between items-center bg-indigo-950/30">
-           <div className="flex items-center gap-3 text-indigo-400">
-             <Mic size={24} />
+        <div className="p-5 border-b border-slate-800 flex justify-between items-center bg-slate-950">
+           <div className="flex items-center gap-3">
+             <div className="p-2 bg-indigo-500/10 rounded-lg border border-indigo-500/20 text-indigo-400">
+                <Mic size={24} />
+             </div>
              <div>
                 <h3 className="font-bold text-white text-lg">AI Transcript Analyzer</h3>
-                <p className="text-xs text-slate-400">Powered by OpenAI GPT-4o / GPT-5</p>
+                <p className="text-xs text-slate-400">Powered by OpenAI GPT-4o</p>
              </div>
            </div>
-           <button onClick={onClose} className="text-slate-500 hover:text-white"><X size={24}/></button>
+           <button onClick={onClose} className="p-2 bg-slate-800 rounded-full text-slate-500 hover:text-white transition-colors"><X size={20}/></button>
         </div>
 
         {/* Body */}
-        <div className="p-6 flex-1 flex flex-col gap-6 overflow-hidden custom-scrollbar overflow-y-auto">
+        <div className="p-6 flex-1 flex flex-col gap-6 overflow-y-auto custom-scrollbar bg-slate-900">
            
            {/* API KEY INPUT */}
-           <div className={`border p-4 rounded-lg transition-colors ${apiKey ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-slate-950 border-slate-700'}`}>
-               <label className="text-xs font-bold uppercase flex items-center gap-2 mb-2 text-slate-400">
-                   <Key size={14} className={apiKey ? "text-emerald-400" : "text-slate-500"} /> 
-                   {apiKey ? <span className="text-emerald-400">API Key Loaded</span> : "OpenAI API Key"}
+           <div className={`border p-4 rounded-xl transition-colors ${apiKey ? 'bg-emerald-950/20 border-emerald-500/30' : 'bg-slate-950 border-slate-700'}`}>
+               <label className="text-[10px] font-bold uppercase flex items-center gap-2 mb-2 text-slate-400 tracking-wider">
+                   <Key size={12} className={apiKey ? "text-emerald-400" : "text-slate-500"} /> 
+                   {apiKey ? <span className="text-emerald-400">API Key Active</span> : "OpenAI API Key Required"}
                </label>
-               <input 
-                   type="password" 
-                   placeholder="sk-..."
-                   className="w-full bg-slate-900 border border-slate-700 text-white rounded p-2 text-sm focus:border-emerald-500 focus:outline-none font-mono"
-                   value={apiKey}
-                   onChange={(e) => setApiKey(e.target.value)}
-               />
-               <p className="text-[10px] text-slate-500 mt-1">
-                   {apiKey ? "Key loaded from .env file." : "Enter key manually or add to .env file."}
-               </p>
+               {apiKey ? (
+                   <div className="flex items-center gap-2 text-emerald-400 text-xs font-mono">
+                       <CheckCircle size={14} /> Key loaded securely from environment.
+                   </div>
+               ) : (
+                   <input 
+                       type="password" 
+                       placeholder="sk-..."
+                       className="w-full bg-slate-900 border border-slate-700 text-white rounded p-2 text-sm focus:border-indigo-500 focus:outline-none font-mono"
+                       value={apiKey}
+                       onChange={(e) => setApiKey(e.target.value)}
+                   />
+               )}
            </div>
 
-           {/* SHOW SELECTOR */}
-           <div className="bg-slate-950 border border-slate-800 p-4 rounded-lg">
-              <label className="text-xs font-bold uppercase text-slate-500 flex items-center gap-2 mb-3">
-                  <Users size={14} /> Select Show / Podcast:
+           {/* SOURCE SELECTOR */}
+           <div className="bg-slate-950 border border-slate-800 p-5 rounded-xl">
+              <label className="text-[10px] font-bold uppercase text-slate-500 flex items-center gap-2 mb-3 tracking-wider">
+                  <Users size={12} /> Select Source / Expert
               </label>
 
-              <div className="flex gap-2 mb-3">
-                  <button onClick={() => setIsNewSource(false)} className={`flex-1 py-2 text-xs font-bold rounded border ${!isNewSource ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-400'}`}>Select Existing</button>
-                  <button onClick={() => setIsNewSource(true)} className={`flex-1 py-2 text-xs font-bold rounded border ${isNewSource ? 'bg-indigo-600 border-indigo-500 text-white' : 'bg-slate-900 border-slate-700 text-slate-400'}`}>+ Create New</button>
+              <div className="flex gap-2 mb-4 bg-slate-900 p-1 rounded-lg border border-slate-800">
+                  <button onClick={() => setIsNewSource(false)} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${!isNewSource ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>Existing Show</button>
+                  <button onClick={() => setIsNewSource(true)} className={`flex-1 py-1.5 text-xs font-bold rounded-md transition-all ${isNewSource ? 'bg-indigo-600 text-white shadow' : 'text-slate-500 hover:text-slate-300'}`}>+ Create New</button>
               </div>
 
               {isNewSource ? (
-                  <input type="text" className="w-full bg-slate-900 border border-slate-600 text-white rounded p-2 text-sm" placeholder="e.g. The Daily Wager" value={newSourceName} onChange={(e) => setNewSourceName(e.target.value)} />
+                  <input 
+                    type="text" 
+                    className="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-3 text-sm focus:border-indigo-500 outline-none" 
+                    placeholder="e.g. 'The Daily Wager' or 'Simmons Podcast'" 
+                    value={newSourceName} 
+                    onChange={(e) => setNewSourceName(e.target.value)} 
+                  />
               ) : (
-                  <select className="w-full bg-slate-900 border border-slate-700 text-white rounded p-2 text-sm" value={selectedSource} onChange={(e) => setSelectedSource(e.target.value)}>
-                      <option value="">-- Select Show --</option>
+                  <select 
+                    className="w-full bg-slate-900 border border-slate-700 text-white rounded-lg p-3 text-sm focus:border-indigo-500 outline-none appearance-none" 
+                    value={selectedSource} 
+                    onChange={(e) => setSelectedSource(e.target.value)}
+                  >
+                      <option value="">-- Choose a Source --</option>
                       {uniqueShows.map((s, i) => <option key={i} value={s}>{s}</option>)}
                   </select>
               )}
            </div>
 
            {/* TRANSCRIPT INPUT */}
-           <div className="flex-1 min-h-[150px] relative">
+           <div className="flex-1 min-h-[200px] relative flex flex-col">
+               <label className="text-[10px] font-bold uppercase text-slate-500 mb-2 tracking-wider">Paste Transcript / Notes</label>
                <textarea 
-                  className="w-full h-full bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-xs text-slate-300 focus:border-indigo-500 focus:outline-none resize-none"
-                  placeholder='Paste Raw Transcript Here...'
+                  className="flex-1 w-full bg-slate-950 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-300 focus:border-indigo-500 focus:outline-none resize-none leading-relaxed"
+                  placeholder='Paste raw text here... The AI will extract picks, lines, and rationale automatically.'
                   value={text}
                   onChange={(e) => setText(e.target.value)}
                />
@@ -127,16 +133,18 @@ export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts =
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-800 flex justify-end gap-3 bg-slate-950">
-           <button onClick={onClose} className="px-4 py-2 text-slate-400 hover:text-white text-sm">Cancel</button>
+        <div className="p-5 border-t border-slate-800 flex justify-end gap-3 bg-slate-950">
+           <button onClick={onClose} className="px-4 py-2 text-slate-400 hover:text-white text-sm font-bold">Cancel</button>
            
            <button 
                 onClick={handleAnalyze} 
                 disabled={!text || isProcessing}
-                className={`px-6 py-2 rounded font-bold flex items-center gap-2 transition-all ${isProcessing ? 'bg-indigo-600 cursor-wait' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-900/20'}`}
+                className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg ${isProcessing ? 'bg-indigo-600 cursor-wait' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20'}`}
             >
-              {isProcessing ? "Processing..." : (
-                  apiKey ? <><Zap size={16} fill="currentColor" /> Auto-Extract Picks</> : <><Play size={16} fill="currentColor" /> Process JSON</>
+              {isProcessing ? (
+                  <><RefreshCw size={18} className="animate-spin" /> Analyizing...</>
+              ) : (
+                  <><Zap size={18} fill="currentColor" /> Extract Picks</>
               )}
            </button>
         </div>
