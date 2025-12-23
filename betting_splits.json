@@ -1,0 +1,386 @@
+{
+  "1": {
+    "id": 1,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 60,
+        "homeTicket": 40,
+        "visitorMoney": 20,
+        "homeMoney": 80
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "2": {
+    "id": 2,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "3": {
+    "id": 3,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 85,
+        "homeTicket": 15,
+        "visitorMoney": 40,
+        "homeMoney": 60
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "4": {
+    "id": 4,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "5": {
+    "id": 5,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "6": {
+    "id": 6,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "7": {
+    "id": 7,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "8": {
+    "id": 8,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "9": {
+    "id": 9,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "10": {
+    "id": 10,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "11": {
+    "id": 11,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "12": {
+    "id": 12,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "13": {
+    "id": 13,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "14": {
+    "id": 14,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "15": {
+    "id": 15,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  },
+  "16": {
+    "id": 16,
+    "updated_at": "2025-12-23 06:14:11",
+    "splits": {
+      "ats": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      },
+      "total": {
+        "overTicket": 50,
+        "underTicket": 50,
+        "overMoney": 50,
+        "underMoney": 50
+      },
+      "ml": {
+        "visitorTicket": 50,
+        "homeTicket": 50,
+        "visitorMoney": 50,
+        "homeMoney": 50
+      }
+    }
+  }
+}
