@@ -2,12 +2,13 @@ import requests
 import pandas as pd
 import json
 import re
+from io import StringIO
 from datetime import datetime
 
 # --- CONFIGURATION ---
 URL = "https://data.vsin.com/nfl/betting-splits/"
 
-# (Keep your existing robust map)
+# ROBUST MAPPING (Keep this, it's working perfectly!)
 FULL_MAP = {
     "WAS": 1, "WASHINGTON": 1, "COMMANDERS": 1,
     "DAL": 1, "DALLAS": 1, "COWBOYS": 1,
@@ -44,15 +45,23 @@ FULL_MAP = {
 }
 
 def clean_pct(val):
+    """
+    Parses messy strings like '60%40%Win' or '93%7%-'
+    Returns the FIRST number found (Visitor %).
+    """
     if not val: return 50
     try:
-        val_str = str(val).replace('%', '').strip()
-        return int(val_str)
+        val_str = str(val).strip()
+        # Regex to find the first sequence of digits followed by a %
+        match = re.search(r"(\d+)%", val_str)
+        if match:
+            return int(match.group(1))
+        return 50
     except:
         return 50
 
 def scrape_real_data():
-    print(f"🚀 X-RAY MODE: Scraping {URL}...")
+    print(f"🚀 FINAL MODE: Scraping {URL}...")
     
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
@@ -61,7 +70,9 @@ def scrape_real_data():
     try:
         response = requests.get(URL, headers=headers)
         response.raise_for_status()
-        tables = pd.read_html(response.text)
+        
+        # FIX: Use StringIO to avoid FutureWarning
+        tables = pd.read_html(StringIO(response.text))
         
         if not tables:
             print("❌ No tables found.")
@@ -70,19 +81,10 @@ def scrape_real_data():
         print(f"✅ Found {len(tables)} tables.")
         df = tables[0]
         
-        # --- DEBUG PRINTOUT ---
-        print("\n👇 --- RAW TABLE HEADERS --- 👇")
-        print(df.columns.tolist())
-        print("👇 --- FIRST 5 ROWS RAW DATA --- 👇")
-        print(df.head().to_string())
-        print("👆 ----------------------------- 👆\n")
-        # ----------------------
-
         processed_data = {}
         
         for index, row in df.iterrows():
             try:
-                # DEBUG: Print exactly what we are checking
                 row_str = str(row.values).upper()
                 
                 found_id = None
@@ -91,36 +93,34 @@ def scrape_real_data():
                         found_id = g_id
                         break
                 
-                if found_id:
-                    print(f"✅ MATCH! Game {found_id} found in row: {row_str[:50]}...")
-                    # ... (Logic continues below) ...
-                else:
-                    # Log failures so we know WHY it missed
-                    # Only log first 5 failures to avoid spam
-                    if index < 5: 
-                        print(f"⚠️ NO MATCH for row: {row_str[:50]}...")
+                if not found_id:
                     continue
                 
                 if found_id in processed_data:
                     continue
 
-                # Standard VSiN Column Indexing
+                # VSiN Column Mapping (Based on your X-Ray logs)
+                # 2: Spread Handle, 3: Spread Bets
+                # 5: Total Handle,  6: Total Bets
+                # 8: ML Handle,     9: ML Bets
+                
+                # FIX: Use .iloc to avoid FutureWarning
                 def get_val(idx):
-                    if idx < len(row): return clean_pct(row[idx])
+                    if idx < len(row): return clean_pct(row.iloc[idx])
                     return 50
 
                 splits_entry = {
                     "ats": {
                         "visitorTicket": get_val(3), "homeTicket": 100 - get_val(3),
-                        "visitorMoney": get_val(4),  "homeMoney": 100 - get_val(4)
+                        "visitorMoney": get_val(2),  "homeMoney": 100 - get_val(2)
                     },
                     "total": {
                         "overTicket": get_val(6), "underTicket": 100 - get_val(6),
-                        "overMoney": get_val(7),  "underMoney": 100 - get_val(7)
+                        "overMoney": get_val(5),  "underMoney": 100 - get_val(5)
                     },
                     "ml": {
                         "visitorTicket": get_val(9), "homeTicket": 100 - get_val(9),
-                        "visitorMoney": get_val(10), "homeMoney": 100 - get_val(10)
+                        "visitorMoney": get_val(8), "homeMoney": 100 - get_val(8)
                     }
                 }
                 
@@ -129,6 +129,7 @@ def scrape_real_data():
                     "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "splits": splits_entry
                 }
+                print(f"🔹 Parsed Game {found_id}: ATS Tickets {splits_entry['ats']['visitorTicket']}%")
                 
             except Exception as e:
                 print(f"⚠️ Row Error: {e}")
