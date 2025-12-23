@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mic, Users, Key, Zap, Play, CheckCircle } from 'lucide-react';
+import { X, Mic, Users, Key, Zap, RefreshCw, CheckCircle } from 'lucide-react';
 import { INITIAL_EXPERTS } from '../../lib/constants'; 
 
 export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts = [] }) {
   const [text, setText] = useState('');
-  const [apiKey, setApiKey] = useState(import.meta.env.VITE_OPENAI_API_KEY || '');
-  const [isProcessing, setIsProcessing] = useState(false);
   
-  // Source Selection State
+  // 🔥 AUTO-LOAD KEY LOGIC
+  // This pulls from your .env file automatically
+  const [apiKey, setApiKey] = useState(import.meta.env.VITE_OPENAI_API_KEY || '');
+  
+  const [isProcessing, setIsProcessing] = useState(false);
   const [isNewSource, setIsNewSource] = useState(false); 
   const [selectedSource, setSelectedSource] = useState(""); 
   const [newSourceName, setNewSourceName] = useState('');
 
-  // Merge initial experts with any new ones passed in
   const expertList = experts.length > 0 ? experts : INITIAL_EXPERTS;
   const uniqueShows = Array.from(new Set(expertList.map(e => e.source))).sort();
 
+  // Reset text when opening, but KEEP the key if it loaded from env
   useEffect(() => {
       if (isOpen) {
           setText('');
+          // Re-check env var if state is empty
           if (!apiKey) setApiKey(import.meta.env.VITE_OPENAI_API_KEY || '');
       }
   }, [isOpen]);
@@ -28,9 +31,14 @@ export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts =
   const handleAnalyze = async () => {
     if (!text.trim()) return;
 
-    // Validation
-    if (isNewSource && !newSourceName.trim()) { alert("Enter a show name."); return; }
-    if (!isNewSource && !selectedSource) { alert("Select a show."); return; }
+    if (isNewSource && !newSourceName.trim()) {
+        alert("Enter a show name.");
+        return;
+    }
+    if (!isNewSource && !selectedSource) {
+        alert("Select a show.");
+        return;
+    }
 
     setIsProcessing(true);
     
@@ -40,11 +48,10 @@ export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts =
         apiKey: apiKey.trim()
     };
 
-    // Trigger the analysis in App.jsx
+    // Send to App.jsx for processing
     await onAnalyze(text, sourceData);
     
     setIsProcessing(false);
-    // Note: We DO NOT close the modal here. App.jsx will swap this modal for the Review Modal.
   };
 
   return (
@@ -142,7 +149,7 @@ export default function AudioUploadModal({ isOpen, onClose, onAnalyze, experts =
                 className={`px-6 py-3 rounded-xl font-bold flex items-center gap-2 transition-all shadow-lg ${isProcessing ? 'bg-indigo-600 cursor-wait' : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20'}`}
             >
               {isProcessing ? (
-                  <><RefreshCw size={18} className="animate-spin" /> Analyizing...</>
+                  <><RefreshCw size={18} className="animate-spin" /> Analyzing...</>
               ) : (
                   <><Zap size={18} fill="currentColor" /> Extract Picks</>
               )}
