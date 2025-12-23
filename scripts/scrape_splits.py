@@ -7,53 +7,7 @@ from datetime import datetime
 # --- CONFIGURATION ---
 URL = "https://data.vsin.com/nfl/betting-splits/"
 
-# ROBUST MAPPING: Matches IDs to [Abbr, City, Mascot]
-# This ensures we catch the team no matter how VSiN writes it.
-TEAM_MAPPING = {
-    1:  ["WAS", "WASHINGTON", "COMMANDERS"],
-    1:  ["DAL", "DALLAS", "COWBOYS"], # Note: Handle sharing ID below
-    2:  ["MIN", "MINNESOTA", "VIKINGS"],
-    2:  ["DET", "DETROIT", "LIONS"],
-    3:  ["KC", "KANSAS", "CHIEFS"],
-    3:  ["DEN", "DENVER", "BRONCOS"],
-    4:  ["LAC", "CHARGERS", "LOS ANGELES CHARGERS"],
-    4:  ["HOU", "HOUSTON", "TEXANS"],
-    5:  ["GB", "GREEN BAY", "PACKERS"],
-    5:  ["BAL", "BALTIMORE", "RAVENS"],
-    6:  ["CAR", "CAROLINA", "PANTHERS"],
-    6:  ["SEA", "SEATTLE", "SEAHAWKS"],
-    7:  ["CIN", "CINCINNATI", "BENGALS"],
-    7:  ["ARI", "ARIZONA", "CARDINALS"],
-    8:  ["CLE", "CLEVELAND", "BROWNS"],
-    8:  ["PIT", "PITTSBURGH", "STEELERS"],
-    9:  ["IND", "INDIANAPOLIS", "COLTS"],
-    9:  ["JAX", "JACKSONVILLE", "JAGUARS"],
-    10: ["MIA", "MIAMI", "DOLPHINS"],
-    10: ["TB", "TAMPA", "BUCCANEERS"],
-    11: ["NYJ", "JETS"],
-    11: ["NE", "NEW ENGLAND", "PATRIOTS"],
-    12: ["TEN", "TENNESSEE", "TITANS"],
-    12: ["NO", "NEW ORLEANS", "SAINTS"],
-    13: ["LV", "LAS VEGAS", "RAIDERS"],
-    13: ["NYG", "GIANTS"],
-    14: ["BUF", "BUFFALO", "BILLS"],
-    14: ["PHI", "PHILADELPHIA", "EAGLES"],
-    15: ["SF", "SAN FRANCISCO", "49ERS"],
-    15: ["CHI", "CHICAGO", "BEARS"],
-    16: ["ATL", "ATLANTA", "FALCONS"],
-    16: ["LAR", "RAMS"]
-}
-
-# RE-ORGANIZE MAPPING FOR LOOKUP
-# Creates a massive list: "COWBOYS" -> 1, "DALLAS" -> 1, "DAL" -> 1
-LOOKUP_TABLE = {}
-for game_id, identifiers in TEAM_MAPPING.items():
-    # We cheat a bit: We assign these keywords to the Game ID.
-    # Since we defined them in pairs above, we need to manually map them correctly below.
-    # actually, let's use a simpler explicit map to be safe.
-    pass
-
-# EXPLICIT MAP (The safest way)
+# (Keep your existing robust map)
 FULL_MAP = {
     "WAS": 1, "WASHINGTON": 1, "COMMANDERS": 1,
     "DAL": 1, "DALLAS": 1, "COWBOYS": 1,
@@ -92,16 +46,16 @@ FULL_MAP = {
 def clean_pct(val):
     if not val: return 50
     try:
-        # Removes % and converts to int
-        return int(str(val).replace('%', '').strip())
+        val_str = str(val).replace('%', '').strip()
+        return int(val_str)
     except:
         return 50
 
 def scrape_real_data():
-    print(f"🚀 Launching Scraper against {URL}...")
+    print(f"🚀 X-RAY MODE: Scraping {URL}...")
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
     }
     
     try:
@@ -113,19 +67,22 @@ def scrape_real_data():
             print("❌ No tables found.")
             return {}
             
-        print(f"✅ Found {len(tables)} tables. Parsing...")
+        print(f"✅ Found {len(tables)} tables.")
         df = tables[0]
         
-        # DEBUG: Print first few rows to logs so we can see what VSiN calls the teams
-        print("--- RAW DATA SAMPLE ---")
-        print(df.head()) 
-        print("-----------------------")
+        # --- DEBUG PRINTOUT ---
+        print("\n👇 --- RAW TABLE HEADERS --- 👇")
+        print(df.columns.tolist())
+        print("👇 --- FIRST 5 ROWS RAW DATA --- 👇")
+        print(df.head().to_string())
+        print("👆 ----------------------------- 👆\n")
+        # ----------------------
 
         processed_data = {}
         
         for index, row in df.iterrows():
             try:
-                # Convert entire row to uppercase string to search for team names
+                # DEBUG: Print exactly what we are checking
                 row_str = str(row.values).upper()
                 
                 found_id = None
@@ -134,18 +91,20 @@ def scrape_real_data():
                         found_id = g_id
                         break
                 
-                if not found_id:
+                if found_id:
+                    print(f"✅ MATCH! Game {found_id} found in row: {row_str[:50]}...")
+                    # ... (Logic continues below) ...
+                else:
+                    # Log failures so we know WHY it missed
+                    # Only log first 5 failures to avoid spam
+                    if index < 5: 
+                        print(f"⚠️ NO MATCH for row: {row_str[:50]}...")
                     continue
                 
-                # Deduplicate: If we already have this game, skip
                 if found_id in processed_data:
                     continue
 
-                # VSiN Column Structure (Index-based):
-                # 3: Spread Bets%, 4: Spread Handle%
-                # 6: Total Bets%, 7: Total Handle%
-                # 9: ML Bets%, 10: ML Handle%
-                
+                # Standard VSiN Column Indexing
                 def get_val(idx):
                     if idx < len(row): return clean_pct(row[idx])
                     return 50
@@ -170,10 +129,9 @@ def scrape_real_data():
                     "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                     "splits": splits_entry
                 }
-                print(f"🔹 Matched Game {found_id} using row data.")
                 
             except Exception as e:
-                print(f"⚠️ Row error: {e}")
+                print(f"⚠️ Row Error: {e}")
                 continue
 
         print(f"💾 Scraped {len(processed_data)} games.")
