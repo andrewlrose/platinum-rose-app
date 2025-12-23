@@ -9,7 +9,6 @@ import MatchupWizardModal from './components/modals/MatchupWizardModal';
 import MyCardModal from './components/modals/MyCardModal';
 import DevLab from './components/dev-lab/DevLab';
 import SplitsModal from './components/modals/SplitsModal';
-// 🔥 NEW: Import the Teaser Modal
 import WongTeaserModal from './components/modals/WongTeaserModal';
 
 function App() {
@@ -19,7 +18,6 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedGame, setSelectedGame] = useState(null);
   const [showSplits, setShowSplits] = useState(false);
-  // 🔥 NEW: State for Teaser Modal
   const [showTeasers, setShowTeasers] = useState(false);
   const [myBets, setMyBets] = useState([]);
   const [simResults, setSimResults] = useState({});
@@ -65,12 +63,20 @@ function App() {
         cartCount={myBets.length} 
         onSyncOdds={() => console.log("Sync")}
         onOpenSplits={() => setShowSplits(true)}
-        // 🔥 NEW: Pass the teaser opener
         onOpenTeasers={() => setShowTeasers(true)}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {activeTab === 'dashboard' && <div className="animate-in fade-in zoom-in duration-300"><Dashboard schedule={WEEK_17_SCHEDULE} stats={stats} onGameClick={setSelectedGame} /></div>}
+        {activeTab === 'dashboard' && (
+            <div className="animate-in fade-in zoom-in duration-300">
+                {/* 🔥 FIX: Pass gamesWithSplits instead of raw schedule */}
+                <Dashboard 
+                    schedule={gamesWithSplits} 
+                    stats={stats} 
+                    onGameClick={setSelectedGame} 
+                />
+            </div>
+        )}
         {activeTab === 'standings' && <Standings experts={INITIAL_EXPERTS} />}
         {activeTab === 'mycard' && <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300"><MyCardModal bets={myBets} onRemoveBet={removeBet} onLockBets={handleLockBets} onClearCard={() => setMyBets([])} /></div>}
         {activeTab === 'devlab' && <DevLab games={WEEK_17_SCHEDULE} savedResults={simResults} onSimComplete={setSimResults} />}
@@ -85,7 +91,6 @@ function App() {
         games={gamesWithSplits} 
       />
 
-      {/* 🔥 NEW: The Wong Teaser Modal */}
       <WongTeaserModal 
         isOpen={showTeasers} 
         onClose={() => setShowTeasers(false)} 
