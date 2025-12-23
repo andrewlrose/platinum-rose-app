@@ -302,6 +302,11 @@ const MatchupCard = ({ game, onPlaceBet, onShowHistory, onAnalyze, experts, myBe
   return (
     <div className="relative p-4 rounded-xl border transition-all duration-300 group bg-slate-900/50 border-slate-800 hover:border-slate-700">
       
+      {/* 🔴 TRACER BULLET - DELETE AFTER TESTING */}
+      <div className="bg-red-600 text-white text-center font-black p-2 mb-4 animate-pulse">
+        DEBUG MODE: IF YOU SEE THIS, THE CODE IS LIVE!
+      </div>
+
       {/* HEADER */}
       <div className="flex justify-between items-start mb-6 opacity-60 text-[11px] font-bold tracking-widest uppercase">
           <div className="flex items-center gap-1 text-slate-400"><span>{formatGameTime(game.commence_time)} PT</span></div>
