@@ -8,7 +8,7 @@ import Standings from './components/dashboard/Standings';
 import MatchupWizardModal from './components/modals/MatchupWizardModal';
 import MyCardModal from './components/modals/MyCardModal';
 import DevLab from './components/dev-lab/DevLab';
-import SplitsModal from './components/modals/SplitsModal'; // <--- MAKE SURE THIS IS HERE
+import SplitsModal from './components/modals/SplitsModal';
 
 function App() {
   const [stats, setStats] = useState([]);
@@ -16,7 +16,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedGame, setSelectedGame] = useState(null);
-  const [showSplits, setShowSplits] = useState(false); // <--- CONTROL STATE FOR MODAL
+  const [showSplits, setShowSplits] = useState(false); // Controls the modal
   const [myBets, setMyBets] = useState([]);
   const [simResults, setSimResults] = useState({});
 
@@ -24,8 +24,8 @@ function App() {
   useEffect(() => {
     Promise.all([
         fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-data/main/weekly_stats.json").then(r => r.json()),
-        // We also fetch the splits JSON (which your Python script will update)
-        fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-data/main/betting_splits.json").then(r => r.json()).catch(() => ({}))
+        // Fetching the live splits file (updated by your cron job)
+        fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-app/main/betting_splits.json").then(r => r.json()).catch(() => ({}))
     ]).then(([statsData, splitsData]) => {
         setStats(statsData);
         setSplits(splitsData || {});
@@ -58,7 +58,7 @@ function App() {
         setActiveTab={setActiveTab} 
         cartCount={myBets.length} 
         onSyncOdds={() => console.log("Sync")}
-        // 🔥 THIS LINE CONNECTS THE BUTTON
+        // 🔥 CONNECTS THE BUTTON
         onOpenSplits={() => setShowSplits(true)}
       />
 
