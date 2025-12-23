@@ -8,8 +8,10 @@ import Standings from './components/dashboard/Standings';
 import MatchupWizardModal from './components/modals/MatchupWizardModal';
 import MyCardModal from './components/modals/MyCardModal';
 import DevLab from './components/dev-lab/DevLab';
-import SplitsModal from './components/modals/SplitsModal';
+import SplitsModal from './components/modals/SplitsModal'; // Legacy, kept for reference
 import WongTeaserModal from './components/modals/WongTeaserModal';
+import PulseModal from './components/modals/PulseModal';       // 🔥 NEW
+import ContestLinesModal from './components/modals/ContestLinesModal'; // 🔥 NEW
 
 function App() {
   const [stats, setStats] = useState([]);
@@ -17,10 +19,16 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedGame, setSelectedGame] = useState(null);
+  
+  // --- MODAL STATES ---
   const [showSplits, setShowSplits] = useState(false);
   const [showTeasers, setShowTeasers] = useState(false);
+  const [showPulse, setShowPulse] = useState(false);     // 🔥 NEW: Pulse Modal State
+  const [showContest, setShowContest] = useState(false); // 🔥 NEW: Contest Modal State
+
   const [myBets, setMyBets] = useState([]);
   const [simResults, setSimResults] = useState({});
+  const [contestLines, setContestLines] = useState({}); // 🔥 NEW: Store Contest Lines
 
   // --- DATA FETCHING ---
   useEffect(() => {
@@ -34,12 +42,14 @@ function App() {
     }).catch(err => console.error("Error loading data:", err));
   }, []);
 
-  // --- MERGE SPLITS INTO SCHEDULE ---
+  // --- MERGE DATA INTO SCHEDULE ---
+  // Now injects Pulse data (splits) AND Contest Lines into every game object
   const gamesWithSplits = WEEK_17_SCHEDULE.map(game => {
       const gameData = splits[game.id] || splits[String(game.id)];
       return {
           ...game,
-          splits: gameData?.splits || null 
+          splits: gameData?.splits || null,
+          contestSpread: contestLines[game.id] || null // 🔥 NEW: Flow contest lines to cards
       };
   });
 
@@ -62,8 +72,11 @@ function App() {
         setActiveTab={setActiveTab} 
         cartCount={myBets.length} 
         onSyncOdds={() => console.log("Sync")}
-        onOpenSplits={() => setShowSplits(true)}
+        
+        // --- WIRING THE BUTTONS ---
+        onOpenSplits={() => setShowPulse(true)}     // 🔥 "Splits" button now opens Pulse (Upgrade)
         onOpenTeasers={() => setShowTeasers(true)}
+        onOpenContest={() => setShowContest(true)}  // 🔥 New Button Action
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -82,7 +95,7 @@ function App() {
         {activeTab === 'devlab' && (
             <DevLab 
                 games={WEEK_17_SCHEDULE} 
-                stats={stats} // 🔥 NEW: Pass the loaded stats so DevLab doesn't have to fetch them
+                stats={stats} 
                 savedResults={simResults} 
                 onSimComplete={setSimResults} 
             />
@@ -92,10 +105,18 @@ function App() {
       {/* --- MODALS --- */}
       <MatchupWizardModal isOpen={!!selectedGame} game={selectedGame} stats={stats} onClose={() => setSelectedGame(null)} onBet={(id, type, sel, line) => { handleBet(id, type, sel, line); setSelectedGame(null); }} />
       
-      <SplitsModal 
-        isOpen={showSplits} 
-        onClose={() => setShowSplits(false)} 
+      {/* 🔥 NEW MODALS WIRED UP */}
+      <PulseModal 
+        isOpen={showPulse} 
+        onClose={() => setShowPulse(false)} 
         games={gamesWithSplits} 
+      />
+
+      <ContestLinesModal 
+        isOpen={showContest} 
+        onClose={() => setShowContest(false)} 
+        games={gamesWithSplits}
+        onUpdateContestLines={setContestLines}
       />
 
       <WongTeaserModal 
