@@ -69,10 +69,11 @@ function App() {
       <main className="max-w-7xl mx-auto px-4 py-8">
         {activeTab === 'dashboard' && (
             <div className="animate-in fade-in zoom-in duration-300">
-                {/* 🔥 FIX: Pass gamesWithSplits instead of raw schedule */}
                 <Dashboard 
                     schedule={gamesWithSplits} 
                     stats={stats} 
+                    // 🔥 NEW: Pass the AI Brain results to the Dashboard
+                    simResults={simResults}
                     onGameClick={setSelectedGame} 
                 />
             </div>

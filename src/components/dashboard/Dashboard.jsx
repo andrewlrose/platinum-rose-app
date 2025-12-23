@@ -1,16 +1,16 @@
 import React from 'react';
 import { Clock } from 'lucide-react';
-// 🔥 NEW: Import the real component
 import MatchupCard from './MatchupCard';
 
 const Dashboard = ({ 
   schedule, 
   stats, 
+  // 🔥 NEW: Accept the results
+  simResults = {},
   onGameClick, 
   onShowHistory 
 }) => {
 
-  // --- BRIDGE: TRANSLATE DATA ---
   const visibleGames = schedule.map(game => {
     const homeStats = stats.find(s => s.team === game.home) || {};
     const visStats = stats.find(s => s.team === game.visitor) || {};
@@ -35,20 +35,24 @@ const Dashboard = ({
           <p className="text-slate-500">Waiting for schedule update...</p>
         </div>
       ) : (
-        visibleGames.map((game) => (
-          // 🔥 NEW: Use the component we just edited
-          <MatchupCard 
-            key={game.id} 
-            game={game}
-            // For now, clicking anything opens the Wizard until we wire up the full betting engine
-            onPlaceBet={() => onGameClick(game)} 
-            onAnalyze={() => onGameClick(game)}
-            onShowHistory={onShowHistory}
-            experts={[]} // Placeholder to prevent crash
-            myBets={[]}  // Placeholder to prevent crash
-            simData={{}} // Placeholder to prevent crash
-          />
-        ))
+        visibleGames.map((game) => {
+          // 🔥 NEW: Find the specific sim result for this game ID
+          const gameSim = simResults[game.id] || null;
+
+          return (
+            <MatchupCard 
+              key={game.id} 
+              game={game}
+              // 🔥 NEW: Pass the sim data to the card (or empty object if none)
+              simData={gameSim || {}}
+              onPlaceBet={() => onGameClick(game)} 
+              onAnalyze={() => onGameClick(game)}
+              onShowHistory={onShowHistory}
+              experts={[]} 
+              myBets={[]} 
+            />
+          );
+        })
       )}
     </div>
   );
