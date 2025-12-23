@@ -1,6 +1,5 @@
-// File: src/components/modals/SplitsModal.jsx
 import React, { useState } from 'react';
-import { X, Banknote, AlignCenterVertical, Layers, AlertTriangle, ChevronRight, ChevronLeft, Ticket } from 'lucide-react';
+import { X, Banknote, AlignCenterVertical, Layers, AlertTriangle, ChevronRight, ChevronLeft } from 'lucide-react';
 
 // --- HELPER: BADGE LOGIC ---
 const getEdgeBadge = (vBets, hBets, vMoney, hMoney, teamV, teamH) => {
@@ -27,7 +26,6 @@ const ComparisonBar = ({ leftVal, rightVal, leftColor, rightColor, labelType }) 
     const total = l + r || 100;
     const lPct = (l / total) * 100;
     
-    // Label Logic: User requested clearer labels (Tix vs $$$) instead of Vis/Home
     const leftLabel = labelType === 'money' ? '$$$' : 'Tix';
     const rightLabel = labelType === 'money' ? '$$$' : 'Tix';
 
@@ -50,7 +48,7 @@ const SplitsModal = ({ isOpen, onClose, games }) => {
 
   if (!isOpen) return null;
 
-  // Filter games that have at least one type of split data
+  // Filter games that actually have split data attached
   const gamesWithSplits = games.filter(g => g.splits && (g.splits.ml || g.splits.ats || g.splits.total));
 
   return (
@@ -88,25 +86,21 @@ const SplitsModal = ({ isOpen, onClose, games }) => {
             <div className="flex flex-col items-center justify-center h-64 text-slate-500">
                 <AlertTriangle size={48} className="mb-4 opacity-50" />
                 <p className="text-lg font-medium">No Splits Data Found</p>
-                <p className="text-sm mt-2 text-center max-w-md">Import splits data using the "Import" button on the dashboard to see this report.</p>
+                <p className="text-sm mt-2 text-center max-w-md">
+                    Waiting for Cron Job to populate <code>betting_splits.json</code>...
+                </p>
             </div>
           ) : (
             <table className="w-full text-sm text-left text-slate-300 border-separate border-spacing-0">
                 <thead className="text-xs uppercase bg-slate-900 text-slate-400 font-bold tracking-wider sticky top-0 z-20 shadow-sm">
                   <tr>
                     <th className="px-4 py-3 border-b border-slate-800 w-48 bg-slate-900">Matchup</th>
-                    
-                    {/* Spread Header */}
                     <th className="px-4 py-3 text-center border-b border-l border-slate-800 bg-indigo-950/30 text-indigo-300">
                         <div className="flex items-center justify-center gap-2"><AlignCenterVertical size={14}/> Spread (ATS)</div>
                     </th>
-
-                    {/* Total Header */}
                     <th className="px-4 py-3 text-center border-b border-l border-slate-800 bg-emerald-950/30 text-emerald-300">
                         <div className="flex items-center justify-center gap-2"><Layers size={14}/> Total</div>
                     </th>
-
-                    {/* Optional Moneyline Header */}
                     {showML && (
                         <th className="px-4 py-3 text-center border-b border-l border-slate-800 bg-amber-950/30 text-amber-300 w-64 animate-in fade-in slide-in-from-right-4">
                             <div className="flex items-center justify-center gap-2"><Banknote size={14}/> Moneyline</div>
@@ -120,15 +114,12 @@ const SplitsModal = ({ isOpen, onClose, games }) => {
                     const ats = game.splits?.ats || {};
                     const tot = game.splits?.total || {};
 
-                    // Calculate Badges
                     const atsBadge = getEdgeBadge(ats.visitorTicket, ats.homeTicket, ats.visitorMoney, ats.homeMoney, game.visitor, game.home);
                     const totBadge = getEdgeBadge(tot.overTicket, tot.underTicket, tot.overMoney, tot.underMoney, 'Over', 'Under');
                     const mlBadge = showML ? getEdgeBadge(ml.visitorTicket, ml.homeTicket, ml.visitorMoney, ml.homeMoney, game.visitor, game.home) : null;
 
                     return (
                       <tr key={game.id} className="hover:bg-slate-900/40 transition-colors group">
-                        
-                        {/* Matchup Column */}
                         <td className="px-4 py-6 font-bold text-white border-r border-slate-800/50 bg-slate-950/50">
                             <div className="flex flex-col gap-1.5">
                                 <div className="flex items-center justify-between">
@@ -141,8 +132,6 @@ const SplitsModal = ({ isOpen, onClose, games }) => {
                                 </div>
                             </div>
                         </td>
-
-                        {/* Spread Data */}
                         <td className="px-6 py-4 border-r border-slate-800/50 relative min-w-[280px]">
                             {atsBadge && (
                                 <div className={`absolute top-2 right-2 text-[9px] px-1.5 py-0.5 rounded border font-bold flex items-center gap-1 ${atsBadge.color}`}>
@@ -150,20 +139,10 @@ const SplitsModal = ({ isOpen, onClose, games }) => {
                                 </div>
                             )}
                             <div className="flex flex-col gap-3 mt-1">
-                                <ComparisonBar 
-                                    leftVal={ats.visitorTicket} rightVal={ats.homeTicket} 
-                                    leftColor="bg-indigo-500" rightColor="bg-rose-500"
-                                    labelType="ticket"
-                                />
-                                <ComparisonBar 
-                                    leftVal={ats.visitorMoney} rightVal={ats.homeMoney} 
-                                    leftColor="bg-indigo-500" rightColor="bg-rose-500"
-                                    labelType="money"
-                                />
+                                <ComparisonBar leftVal={ats.visitorTicket} rightVal={ats.homeTicket} leftColor="bg-indigo-500" rightColor="bg-rose-500" labelType="ticket" />
+                                <ComparisonBar leftVal={ats.visitorMoney} rightVal={ats.homeMoney} leftColor="bg-indigo-500" rightColor="bg-rose-500" labelType="money" />
                             </div>
                         </td>
-
-                        {/* Total Data */}
                         <td className="px-6 py-4 border-r border-slate-800/50 relative min-w-[280px]">
                              {totBadge && (
                                 <div className={`absolute top-2 right-2 text-[9px] px-1.5 py-0.5 rounded border font-bold flex items-center gap-1 ${totBadge.color}`}>
@@ -171,24 +150,14 @@ const SplitsModal = ({ isOpen, onClose, games }) => {
                                 </div>
                             )}
                             <div className="flex flex-col gap-3 mt-1">
-                                <ComparisonBar 
-                                    leftVal={tot.overTicket} rightVal={tot.underTicket} 
-                                    leftColor="bg-emerald-500" rightColor="bg-slate-600"
-                                    labelType="ticket"
-                                />
-                                <ComparisonBar 
-                                    leftVal={tot.overMoney} rightVal={tot.underMoney} 
-                                    leftColor="bg-emerald-500" rightColor="bg-slate-600"
-                                    labelType="money"
-                                />
+                                <ComparisonBar leftVal={tot.overTicket} rightVal={tot.underTicket} leftColor="bg-emerald-500" rightColor="bg-slate-600" labelType="ticket" />
+                                <ComparisonBar leftVal={tot.overMoney} rightVal={tot.underMoney} leftColor="bg-emerald-500" rightColor="bg-slate-600" labelType="money" />
                             </div>
                             <div className="flex justify-between w-full mt-1 px-1">
                                 <span className="text-[9px] font-bold text-emerald-500/80">OVER</span>
                                 <span className="text-[9px] font-bold text-slate-500">UNDER</span>
                             </div>
                         </td>
-
-                        {/* Optional Moneyline Data */}
                         {showML && (
                             <td className="px-6 py-4 relative min-w-[280px] bg-slate-900/20 animate-in fade-in slide-in-from-right-2">
                                 {mlBadge && (
@@ -197,16 +166,8 @@ const SplitsModal = ({ isOpen, onClose, games }) => {
                                     </div>
                                 )}
                                 <div className="flex flex-col gap-3 mt-1">
-                                    <ComparisonBar 
-                                        leftVal={ml.visitorTicket} rightVal={ml.homeTicket} 
-                                        leftColor="bg-indigo-500" rightColor="bg-rose-500"
-                                        labelType="ticket"
-                                    />
-                                    <ComparisonBar 
-                                        leftVal={ml.visitorMoney} rightVal={ml.homeMoney} 
-                                        leftColor="bg-indigo-500" rightColor="bg-rose-500"
-                                        labelType="money"
-                                    />
+                                    <ComparisonBar leftVal={ml.visitorTicket} rightVal={ml.homeTicket} leftColor="bg-indigo-500" rightColor="bg-rose-500" labelType="ticket" />
+                                    <ComparisonBar leftVal={ml.visitorMoney} rightVal={ml.homeMoney} leftColor="bg-indigo-500" rightColor="bg-rose-500" labelType="money" />
                                 </div>
                             </td>
                         )}
