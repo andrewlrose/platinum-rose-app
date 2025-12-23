@@ -9,8 +9,9 @@ const Header = ({
   activeTab, 
   setActiveTab, 
   cartCount = 0,
-  // 🔥 NEW: Accept the function passed from App.jsx
   onOpenSplits,
+  // 🔥 NEW: Accept the Teaser function
+  onOpenTeasers, 
   onSyncOdds = () => console.log("Sync triggered"),
   onReset = () => console.log("Reset triggered"),
   onSaveFile = () => console.log("Save triggered"),
@@ -73,10 +74,11 @@ const Header = ({
             <div className="w-px h-8 bg-slate-800"></div>
 
             <div className="flex items-center gap-2">
-               {/* 🔥 UPDATED: Now uses the prop instead of alert() */}
                <ToolButton onClick={onOpenSplits} icon={Split} title="Betting Splits" color="text-indigo-400" />
                
-               <ToolButton onClick={() => alert("Teasers Feature Coming Soon")} icon={List} title="Wong Teasers" color="text-purple-400" />
+               {/* 🔥 UPDATED: Now uses the prop instead of alert() */}
+               <ToolButton onClick={onOpenTeasers} icon={List} title="Wong Teasers" color="text-purple-400" />
+               
                <ToolButton onClick={() => alert("Pulse Feature Coming Soon")} icon={Activity} title="Market Pulse" color="text-rose-400" />
                <ToolButton onClick={() => alert("Contest Feature Coming Soon")} icon={Trophy} title="SuperContest" color="text-amber-400" />
             </div>

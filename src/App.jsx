@@ -9,6 +9,8 @@ import MatchupWizardModal from './components/modals/MatchupWizardModal';
 import MyCardModal from './components/modals/MyCardModal';
 import DevLab from './components/dev-lab/DevLab';
 import SplitsModal from './components/modals/SplitsModal';
+// 🔥 NEW: Import the Teaser Modal
+import WongTeaserModal from './components/modals/WongTeaserModal';
 
 function App() {
   const [stats, setStats] = useState([]);
@@ -17,6 +19,8 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedGame, setSelectedGame] = useState(null);
   const [showSplits, setShowSplits] = useState(false);
+  // 🔥 NEW: State for Teaser Modal
+  const [showTeasers, setShowTeasers] = useState(false);
   const [myBets, setMyBets] = useState([]);
   const [simResults, setSimResults] = useState({});
 
@@ -32,9 +36,8 @@ function App() {
     }).catch(err => console.error("Error loading data:", err));
   }, []);
 
-  // --- MERGE SPLITS INTO SCHEDULE (FIXED) ---
+  // --- MERGE SPLITS INTO SCHEDULE ---
   const gamesWithSplits = WEEK_17_SCHEDULE.map(game => {
-      // 🎯 FIX: We check if the data exists, then grab the inner .splits object
       const gameData = splits[game.id] || splits[String(game.id)];
       return {
           ...game,
@@ -62,6 +65,8 @@ function App() {
         cartCount={myBets.length} 
         onSyncOdds={() => console.log("Sync")}
         onOpenSplits={() => setShowSplits(true)}
+        // 🔥 NEW: Pass the teaser opener
+        onOpenTeasers={() => setShowTeasers(true)}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
@@ -77,6 +82,13 @@ function App() {
       <SplitsModal 
         isOpen={showSplits} 
         onClose={() => setShowSplits(false)} 
+        games={gamesWithSplits} 
+      />
+
+      {/* 🔥 NEW: The Wong Teaser Modal */}
+      <WongTeaserModal 
+        isOpen={showTeasers} 
+        onClose={() => setShowTeasers(false)} 
         games={gamesWithSplits} 
       />
 
