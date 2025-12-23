@@ -72,7 +72,6 @@ function App() {
                 <Dashboard 
                     schedule={gamesWithSplits} 
                     stats={stats} 
-                    // 🔥 NEW: Pass the AI Brain results to the Dashboard
                     simResults={simResults}
                     onGameClick={setSelectedGame} 
                 />
@@ -80,7 +79,14 @@ function App() {
         )}
         {activeTab === 'standings' && <Standings experts={INITIAL_EXPERTS} />}
         {activeTab === 'mycard' && <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300"><MyCardModal bets={myBets} onRemoveBet={removeBet} onLockBets={handleLockBets} onClearCard={() => setMyBets([])} /></div>}
-        {activeTab === 'devlab' && <DevLab games={WEEK_17_SCHEDULE} savedResults={simResults} onSimComplete={setSimResults} />}
+        {activeTab === 'devlab' && (
+            <DevLab 
+                games={WEEK_17_SCHEDULE} 
+                stats={stats} // 🔥 NEW: Pass the loaded stats so DevLab doesn't have to fetch them
+                savedResults={simResults} 
+                onSimComplete={setSimResults} 
+            />
+        )}
       </main>
 
       {/* --- MODALS --- */}
