@@ -12,10 +12,10 @@ import SplitsModal from './components/modals/SplitsModal';
 import WongTeaserModal from './components/modals/WongTeaserModal';
 import PulseModal from './components/modals/PulseModal';
 import ContestLinesModal from './components/modals/ContestLinesModal'; 
-// 🔥 NEW MODALS
 import AudioUploadModal from './components/modals/AudioUploadModal';
 import ReviewPicksModal from './components/modals/ReviewPicksModal';
-import BulkImportModal from './components/modals/BulkImportModal'; // Restored
+import BulkImportModal from './components/modals/BulkImportModal'; 
+import ExpertManagerModal from './components/modals/ExpertManagerModal'; // 🔥 NEW
 
 function App() {
   const [stats, setStats] = useState([]);
@@ -31,7 +31,8 @@ function App() {
   const [showContest, setShowContest] = useState(false); 
   const [showAudio, setShowAudio] = useState(false);     
   const [showReview, setShowReview] = useState(false);   
-  const [showImport, setShowImport] = useState(false);   // 🔥 NEW: Bulk Import State
+  const [showImport, setShowImport] = useState(false);   
+  const [showExpertMgr, setShowExpertMgr] = useState(false); // 🔥 NEW
 
   const [myBets, setMyBets] = useState([]);
   const [simResults, setSimResults] = useState({});
@@ -62,7 +63,7 @@ function App() {
       };
   });
 
-  // --- AI LOGIC (Same as before) ---
+  // --- AI LOGIC ---
   const handleAIAnalyze = async (text, sourceData) => {
     try {
         console.log("Analyzing text...");
@@ -120,12 +121,40 @@ function App() {
       alert(`Success! ${stagedPicks.length} new picks added.`);
   };
 
-  // --- BULK IMPORT LOGIC ---
-  const handleBulkImport = (text) => {
-      // Placeholder for parsing Action Network text dumps
-      alert("Bulk Text received. Parsing logic would go here.");
-      // You can add your parsing logic from the old app here if needed
+  // --- EXPERT MANAGER LOGIC ---
+  const handleUpdatePick = (gameId, oldPick, newPickData) => {
+      const newConsensus = { ...expertConsensus };
+      const gamePicks = newConsensus[gameId].expertPicks;
+      const category = oldPick.type === 'Total' ? 'total' : 'spread';
+      
+      // Find and update
+      const index = gamePicks[category].findIndex(p => p.expert === oldPick.expert && p.pick === oldPick.pick);
+      if (index !== -1) {
+          gamePicks[category][index] = { ...gamePicks[category][index], ...newPickData };
+          setExpertConsensus(newConsensus);
+      }
   };
+
+  const handleDeletePick = (gameId, pickToDelete) => {
+      if(!window.confirm("Delete this pick?")) return;
+      const newConsensus = { ...expertConsensus };
+      const category = pickToDelete.type === 'Total' ? 'total' : 'spread';
+      newConsensus[gameId].expertPicks[category] = newConsensus[gameId].expertPicks[category].filter(p => 
+          !(p.expert === pickToDelete.expert && p.pick === pickToDelete.pick)
+      );
+      setExpertConsensus(newConsensus);
+  };
+
+  const handleClearExpert = (expertName) => {
+      const newConsensus = { ...expertConsensus };
+      Object.keys(newConsensus).forEach(gameId => {
+          newConsensus[gameId].expertPicks.spread = newConsensus[gameId].expertPicks.spread.filter(p => p.expert !== expertName);
+          newConsensus[gameId].expertPicks.total = newConsensus[gameId].expertPicks.total.filter(p => p.expert !== expertName);
+      });
+      setExpertConsensus(newConsensus);
+  };
+
+  const handleBulkImport = (text) => { alert("Bulk Text received. Parsing logic would go here."); };
 
   const handleBet = (gameId, type, selection, line) => {
     const game = WEEK_17_SCHEDULE.find(g => g.id === gameId);
@@ -149,10 +178,11 @@ function App() {
         onOpenTeasers={() => setShowTeasers(true)}
         onOpenContest={() => setShowContest(true)}  
         
-        // 🔥 SEPARATED BUTTONS
-        onImport={() => setShowImport(true)} // Cloud Icon -> Bulk Import
-        onAnalyze={() => setShowAudio(true)} // Mic Icon -> AI Transcript
-        onSave={() => alert("Save Picks functionality coming soon!")} 
+        onImport={() => setShowImport(true)} 
+        onAnalyze={() => setShowAudio(true)} 
+        
+        // 🔥 RE-WIRED SAVE TO OPEN MANAGER FOR NOW (Or you can add a new button)
+        onSave={() => setShowExpertMgr(true)} 
         onReset={() => { if(window.confirm("Reset all picks?")) setMyBets([]); }}
       />
 
@@ -174,10 +204,20 @@ function App() {
       <WongTeaserModal isOpen={showTeasers} onClose={() => setShowTeasers(false)} games={gamesWithSplits} />
       <SplitsModal isOpen={showSplits} onClose={() => setShowSplits(false)} games={gamesWithSplits} />
 
-      {/* 🔥 AI & IMPORT MODALS */}
       <AudioUploadModal isOpen={showAudio} onClose={() => setShowAudio(false)} onAnalyze={handleAIAnalyze} />
       <ReviewPicksModal isOpen={showReview} onClose={() => setShowReview(false)} stagedPicks={stagedPicks} onConfirm={handleConfirmPicks} onDiscard={(idx) => setStagedPicks(stagedPicks.filter((_, i) => i !== idx))} />
       <BulkImportModal isOpen={showImport} onClose={() => setShowImport(false)} onImport={handleBulkImport} />
+      
+      {/* 🔥 EXPERT MANAGER */}
+      <ExpertManagerModal 
+          isOpen={showExpertMgr} 
+          onClose={() => setShowExpertMgr(false)}
+          experts={INITIAL_EXPERTS}
+          expertConsensus={expertConsensus}
+          onUpdatePick={handleUpdatePick}
+          onDeletePick={handleDeletePick}
+          onClearExpert={handleClearExpert}
+      />
 
     </div>
   );
