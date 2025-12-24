@@ -17,7 +17,43 @@ import ReviewPicksModal from './components/modals/ReviewPicksModal';
 import BulkImportModal from './components/modals/BulkImportModal'; 
 import ExpertManagerModal from './components/modals/ExpertManagerModal'; 
 
-// --- EMERGENCY BACKUP SCHEDULE (Use if import fails) ---
+// --- TEAM ALIAS DICTIONARY ---
+const TEAM_ALIASES = {
+    "cardinals": "cardinals", "arizona": "cardinals", "cards": "cardinals",
+    "falcons": "falcons", "atlanta": "falcons",
+    "ravens": "ravens", "baltimore": "ravens",
+    "bills": "bills", "buffalo": "bills",
+    "panthers": "panthers", "carolina": "panthers",
+    "bears": "bears", "chicago": "bears",
+    "bengals": "bengals", "cincinnati": "bengals", "cincy": "bengals",
+    "browns": "browns", "cleveland": "browns",
+    "cowboys": "cowboys", "dallas": "cowboys",
+    "broncos": "broncos", "denver": "broncos",
+    "lions": "lions", "detroit": "lions",
+    "packers": "packers", "green bay": "packers",
+    "texans": "texans", "houston": "texans",
+    "colts": "colts", "indianapolis": "colts", "indy": "colts",
+    "jaguars": "jaguars", "jacksonville": "jaguars", "jags": "jaguars",
+    "chiefs": "chiefs", "kansas city": "chiefs", "kc": "chiefs",
+    "raiders": "raiders", "las vegas": "raiders", "vegas": "raiders",
+    "chargers": "chargers", "los angeles chargers": "chargers", "la chargers": "chargers", "bolts": "chargers",
+    "rams": "rams", "los angeles rams": "rams", "la rams": "rams",
+    "dolphins": "dolphins", "miami": "dolphins", "fins": "dolphins",
+    "vikings": "vikings", "minnesota": "vikings", "minny": "vikings",
+    "patriots": "patriots", "new england": "patriots", "pats": "patriots",
+    "saints": "saints", "new orleans": "saints",
+    "giants": "giants", "ny giants": "giants", "new york giants": "giants", "gmen": "giants",
+    "jets": "jets", "ny jets": "jets", "new york jets": "jets", "gang green": "jets",
+    "eagles": "eagles", "philadelphia": "eagles", "philly": "eagles",
+    "steelers": "steelers", "pittsburgh": "steelers",
+    "49ers": "49ers", "san francisco": "49ers", "niners": "49ers", "sf": "49ers",
+    "seahawks": "seahawks", "seattle": "seahawks",
+    "buccaneers": "buccaneers", "tampa bay": "buccaneers", "tampa": "buccaneers", "bucs": "buccaneers",
+    "titans": "titans", "tennessee": "titans",
+    "commanders": "commanders", "washington": "commanders", "commies": "commanders"
+};
+
+// --- EMERGENCY BACKUP SCHEDULE ---
 const BACKUP_SCHEDULE = [
     { id: 1, visitor: "Chiefs", home: "Steelers", time: "Wed 1:00 PM" },
     { id: 2, visitor: "Ravens", home: "Texans", time: "Wed 4:30 PM" },
@@ -65,14 +101,9 @@ function App() {
 
   // --- DIAGNOSTIC STARTUP ---
   useEffect(() => {
-    // 🔥 CRITICAL CHECK: Alert user if schedule is empty
     if (!WEEK_17_SCHEDULE || WEEK_17_SCHEDULE.length === 0) {
-        console.warn("⚠️ IMPORTED SCHEDULE IS EMPTY. Using Backup.");
-        // alert("WARNING: 'WEEK_17_SCHEDULE' in constants.js is empty! Using Emergency Backup Schedule.");
-    } else {
-        console.log(`✅ Loaded ${WEEK_17_SCHEDULE.length} games from constants.js`);
+        console.warn("Using Backup Schedule.");
     }
-
     Promise.all([
         fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-data/main/weekly_stats.json").then(r => r.json()),
         fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-app/main/betting_splits.json").then(r => r.json()).catch(() => ({}))
@@ -99,11 +130,24 @@ function App() {
       if (!rawInput) return null;
       const clean = rawInput.toLowerCase().replace(/[^a-z0-9]/g, ""); 
       
+      // 1. Check Alias Dictionary
+      for (const [alias, standard] of Object.entries(TEAM_ALIASES)) {
+          if (clean.includes(alias)) {
+               // Search schedule for the STANDARD name (e.g., "jaguars")
+               const standardClean = standard.toLowerCase();
+               return ACTIVE_SCHEDULE.find(g => {
+                    const h = g.home.toLowerCase().replace(/[^a-z0-9]/g, "");
+                    const v = g.visitor.toLowerCase().replace(/[^a-z0-9]/g, "");
+                    return h.includes(standardClean) || v.includes(standardClean);
+               });
+          }
+      }
+
+      // 2. Fallback to raw match
       return ACTIVE_SCHEDULE.find(g => {
           const home = g.home.toLowerCase().replace(/[^a-z0-9]/g, "");
           const vis = g.visitor.toLowerCase().replace(/[^a-z0-9]/g, "");
-          
-          return home.includes(clean) || vis.includes(clean) || clean.includes(home) || clean.includes(vis);
+          return home.includes(clean) || vis.includes(clean);
       });
   };
 
@@ -114,7 +158,8 @@ function App() {
         const prompt = `
         Analyze this transcript and extract NFL betting picks.
         Source: ${sourceData.name}
-        Return JSON object with "picks" array.
+        Return JSON object with "picks" array. 
+        Each pick MUST have: "selection", "type", "line", "summary", "units".
         Transcript: ${text.substring(0, 15000)}
         `;
 
@@ -132,27 +177,30 @@ function App() {
         if (data.error) { alert(`OpenAI Error: ${data.error.message}`); return; }
 
         const content = JSON.parse(data.choices[0].message.content);
+        console.log("AI RAW JSON:", JSON.stringify(content, null, 2)); // 🔥 Log full structure
+
         let picks = content.picks || content;
         if (!Array.isArray(picks)) picks = [picks];
 
+        // 🔥 KEY NORMALIZATION STEP
         const processedPicks = picks.map(p => {
-            const safeTeam1 = p.team1 || "";
-            const safeTeam2 = p.team2 || "";
-            const safeSel = p.selection || "";
+            // 1. Fix missing keys (Handle 'pick' vs 'selection')
+            let rawSelection = p.selection || p.pick || p.team || p.bet || "Unknown";
             
-            const game = findGameForTeam(safeTeam1) || findGameForTeam(safeTeam2) || findGameForTeam(safeSel);
+            // 2. Try to Match
+            const game = findGameForTeam(rawSelection);
             
-            // 🔥 VISUAL DEBUGGING
-            const debugName = game 
-                ? p.selection 
-                : `⚠️ UNMATCHED: ${p.selection}`; 
+            // 3. Fallback Name if match found
+            const displayName = game 
+                ? `${rawSelection} (${game.visitor} @ ${game.home})` 
+                : rawSelection;
 
             return {
                 ...p,
-                selection: debugName, // Modify name so it shows RED in modal if unmatched
+                selection: displayName,
                 gameId: game ? game.id : null,
                 expert: sourceData.name,
-                rationale: p.summary,
+                rationale: p.summary || p.rationale || p.analysis,
                 matched: !!game
             };
         });
@@ -170,19 +218,17 @@ function App() {
   const handleConfirmPicks = () => {
       const newConsensus = { ...expertConsensus };
       let savedCount = 0;
-      let failedPicks = [];
+      let skippedCount = 0;
 
       stagedPicks.forEach(p => {
           if (!p.gameId) {
-              failedPicks.push(p.selection);
+              skippedCount++;
               return;
           }
 
           if (!newConsensus[p.gameId]) newConsensus[p.gameId] = { expertPicks: { spread: [], total: [] } };
           
-          // Clean the selection name (remove warning flag)
-          const cleanSelection = p.selection.replace("⚠️ UNMATCHED: ", "");
-
+          // Deep Copy
           const updatedGameData = {
               ...newConsensus[p.gameId],
               expertPicks: {
@@ -192,9 +238,9 @@ function App() {
               }
           };
 
-          const category = p.type === 'Total' ? 'total' : 'spread';
+          const category = (p.type && p.type.toLowerCase().includes('total')) ? 'total' : 'spread';
           updatedGameData.expertPicks[category].push({
-              expert: p.expert, pick: cleanSelection, line: p.line, pickType: p.type,
+              expert: p.expert, pick: p.selection, line: p.line, pickType: p.type,
               analysis: p.analysis, rationale: p.rationale, units: p.units
           });
 
@@ -206,10 +252,10 @@ function App() {
       setShowReview(false);
       setStagedPicks([]);
       
-      if (failedPicks.length > 0) {
-          alert(`Saved ${savedCount} picks.\n\n❌ FAILED to match ${failedPicks.length} picks:\n${failedPicks.join("\n")}`);
+      if (skippedCount > 0) {
+          alert(`Saved ${savedCount} picks.\n⚠️ Skipped ${skippedCount} picks because no game match was found.`);
       } else {
-          alert(`Success! ${savedCount} picks added to the Board.`);
+          alert(`Success! ${savedCount} picks added.`);
       }
   };
 
@@ -271,5 +317,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
