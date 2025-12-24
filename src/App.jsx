@@ -17,41 +17,25 @@ import ReviewPicksModal from './components/modals/ReviewPicksModal';
 import BulkImportModal from './components/modals/BulkImportModal'; 
 import ExpertManagerModal from './components/modals/ExpertManagerModal'; 
 
-// --- TEAM ALIAS DICTIONARY ---
-const TEAM_ALIASES = {
-    "cardinals": "cardinals", "arizona": "cardinals", "cards": "cardinals",
-    "falcons": "falcons", "atlanta": "falcons",
-    "ravens": "ravens", "baltimore": "ravens",
-    "bills": "bills", "buffalo": "bills",
-    "panthers": "panthers", "carolina": "panthers",
-    "bears": "bears", "chicago": "bears",
-    "bengals": "bengals", "cincinnati": "bengals", "cincy": "bengals",
-    "browns": "browns", "cleveland": "browns",
-    "cowboys": "cowboys", "dallas": "cowboys",
-    "broncos": "broncos", "denver": "broncos",
-    "lions": "lions", "detroit": "lions",
-    "packers": "packers", "green bay": "packers",
-    "texans": "texans", "houston": "texans",
-    "colts": "colts", "indianapolis": "colts", "indy": "colts",
-    "jaguars": "jaguars", "jacksonville": "jaguars", "jags": "jaguars",
-    "chiefs": "chiefs", "kansas city": "chiefs", "kc": "chiefs",
-    "raiders": "raiders", "las vegas": "raiders", "vegas": "raiders",
-    "chargers": "chargers", "los angeles chargers": "chargers", "la chargers": "chargers", "bolts": "chargers",
-    "rams": "rams", "los angeles rams": "rams", "la rams": "rams",
-    "dolphins": "dolphins", "miami": "dolphins", "fins": "dolphins",
-    "vikings": "vikings", "minnesota": "vikings", "minny": "vikings",
-    "patriots": "patriots", "new england": "patriots", "pats": "patriots",
-    "saints": "saints", "new orleans": "saints",
-    "giants": "giants", "ny giants": "giants", "new york giants": "giants", "gmen": "giants",
-    "jets": "jets", "ny jets": "jets", "new york jets": "jets", "gang green": "jets",
-    "eagles": "eagles", "philadelphia": "eagles", "philly": "eagles",
-    "steelers": "steelers", "pittsburgh": "steelers",
-    "49ers": "49ers", "san francisco": "49ers", "niners": "49ers", "sf": "49ers",
-    "seahawks": "seahawks", "seattle": "seahawks",
-    "buccaneers": "buccaneers", "tampa bay": "buccaneers", "tampa": "buccaneers", "bucs": "buccaneers",
-    "titans": "titans", "tennessee": "titans",
-    "commanders": "commanders", "washington": "commanders", "commies": "commanders"
-};
+// --- EMERGENCY BACKUP SCHEDULE (Use if import fails) ---
+const BACKUP_SCHEDULE = [
+    { id: 1, visitor: "Chiefs", home: "Steelers", time: "Wed 1:00 PM" },
+    { id: 2, visitor: "Ravens", home: "Texans", time: "Wed 4:30 PM" },
+    { id: 3, visitor: "Broncos", home: "Bengals", time: "Thu 8:15 PM" },
+    { id: 4, visitor: "Cardinals", home: "Rams", time: "Sun 1:00 PM" },
+    { id: 5, visitor: "Chargers", home: "Patriots", time: "Sun 1:00 PM" },
+    { id: 6, visitor: "Titans", home: "Jaguars", time: "Sun 1:00 PM" },
+    { id: 7, visitor: "Jets", home: "Bills", time: "Sun 1:00 PM" },
+    { id: 8, visitor: "Packers", home: "Vikings", time: "Sun 1:00 PM" },
+    { id: 9, visitor: "Raiders", home: "Saints", time: "Sun 1:00 PM" },
+    { id: 10, visitor: "Panthers", home: "Buccaneers", time: "Sun 1:00 PM" },
+    { id: 11, visitor: "Cowboys", home: "Eagles", time: "Sun 4:25 PM" },
+    { id: 12, visitor: "Giants", home: "Commanders", time: "Sun 4:25 PM" },
+    { id: 13, visitor: "49ers", home: "Lions", time: "Sun 4:25 PM" },
+    { id: 14, visitor: "Falcons", home: "Bears", time: "Sun 8:20 PM" },
+    { id: 15, visitor: "Browns", home: "Dolphins", time: "Mon 8:15 PM" },
+    { id: 16, visitor: "Seahawks", home: "Colts", time: "Mon 8:15 PM" }
+];
 
 function App() {
   const [stats, setStats] = useState([]);
@@ -76,15 +60,17 @@ function App() {
   const [expertConsensus, setExpertConsensus] = useState({}); 
   const [stagedPicks, setStagedPicks] = useState([]); 
 
-  // --- DATA FETCHING ---
+  // Determine which schedule to use
+  const ACTIVE_SCHEDULE = (WEEK_17_SCHEDULE && WEEK_17_SCHEDULE.length > 0) ? WEEK_17_SCHEDULE : BACKUP_SCHEDULE;
+
+  // --- DIAGNOSTIC STARTUP ---
   useEffect(() => {
-    // 🔥 DIAGNOSTIC LOG: Print Schedule to Console
-    console.log("--- SCHEDULE DIAGNOSTIC ---");
-    console.log("Loaded Schedule:", WEEK_17_SCHEDULE);
+    // 🔥 CRITICAL CHECK: Alert user if schedule is empty
     if (!WEEK_17_SCHEDULE || WEEK_17_SCHEDULE.length === 0) {
-        alert("CRITICAL ERROR: WEEK_17_SCHEDULE is empty. Check lib/constants.js");
+        console.warn("⚠️ IMPORTED SCHEDULE IS EMPTY. Using Backup.");
+        // alert("WARNING: 'WEEK_17_SCHEDULE' in constants.js is empty! Using Emergency Backup Schedule.");
     } else {
-        console.log("Sample Game 1:", WEEK_17_SCHEDULE[0]);
+        console.log(`✅ Loaded ${WEEK_17_SCHEDULE.length} games from constants.js`);
     }
 
     Promise.all([
@@ -97,7 +83,7 @@ function App() {
     }).catch(err => console.error("Error loading data:", err));
   }, []);
 
-  const gamesWithSplits = WEEK_17_SCHEDULE.map(game => {
+  const gamesWithSplits = ACTIVE_SCHEDULE.map(game => {
       const gameData = splits[game.id] || splits[String(game.id)];
       const expertData = expertConsensus[game.id] || { expertPicks: { spread: [], total: [] } };
       return {
@@ -108,41 +94,17 @@ function App() {
       };
   });
 
-  // --- 🔥 BRUTE FORCE MATCHER ---
+  // --- ROBUST MATCHER ---
   const findGameForTeam = (rawInput) => {
       if (!rawInput) return null;
-      const cleanInput = rawInput.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
-
-      // 1. Alias Lookup
-      let searchKey = cleanInput;
-      for (const [alias, standard] of Object.entries(TEAM_ALIASES)) {
-          if (cleanInput.includes(alias)) {
-              searchKey = standard;
-              break;
-          }
-      }
-
-      // 2. Exact/Partial Match
-      let match = WEEK_17_SCHEDULE.find(g => 
-          g.home.toLowerCase().includes(searchKey) || 
-          g.visitor.toLowerCase().includes(searchKey)
-      );
-      if (match) return match;
-
-      // 3. Reverse Check (Does Schedule contain Input?)
-      match = WEEK_17_SCHEDULE.find(g => 
-          searchKey.includes(g.home.toLowerCase()) || 
-          searchKey.includes(g.visitor.toLowerCase())
-      );
-      if (match) return match;
-
-      // 4. Token Match (Word by Word) - "Last Resort"
-      const tokens = searchKey.split(" ");
-      match = WEEK_17_SCHEDULE.find(g => {
-          return tokens.some(t => t.length > 3 && (g.home.toLowerCase().includes(t) || g.visitor.toLowerCase().includes(t)));
+      const clean = rawInput.toLowerCase().replace(/[^a-z0-9]/g, ""); 
+      
+      return ACTIVE_SCHEDULE.find(g => {
+          const home = g.home.toLowerCase().replace(/[^a-z0-9]/g, "");
+          const vis = g.visitor.toLowerCase().replace(/[^a-z0-9]/g, "");
+          
+          return home.includes(clean) || vis.includes(clean) || clean.includes(home) || clean.includes(vis);
       });
-
-      return match || null;
   };
 
   // --- AI LOGIC ---
@@ -152,34 +114,16 @@ function App() {
         const prompt = `
         Analyze this transcript and extract NFL betting picks.
         Source: ${sourceData.name}
-        
-        Return a JSON OBJECT with a key named "picks" containing an array of objects.
-        Each object in the array must have:
-        - selection: (Team Name or 'Over'/'Under')
-        - type: ('Spread', 'Total', or 'Prop')
-        - line: (The number, e.g. -3.5 or 48.5. Use "0" if moneyline)
-        - analysis: (Direct quote or summary of reasoning)
-        - summary: (Short bullet point justifying the pick)
-        - units: (1-5 confidence score, default 1)
-        - team1: (Visitor Team Name - approximate match)
-        - team2: (Home Team Name - approximate match)
-
-        Transcript:
-        ${text.substring(0, 15000)}
+        Return JSON object with "picks" array.
+        Transcript: ${text.substring(0, 15000)}
         `;
 
         const response = await fetch("https://api.openai.com/v1/chat/completions", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${sourceData.apiKey}`
-            },
+            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${sourceData.apiKey}` },
             body: JSON.stringify({
                 model: "gpt-4o",
-                messages: [
-                    { role: "system", content: "You are a betting analyst JSON extractor. Always return a valid JSON object with a 'picks' key." }, 
-                    { role: "user", content: prompt }
-                ],
+                messages: [{ role: "system", content: "You are a betting analyst JSON extractor. Return a valid JSON object with 'picks' key." }, { role: "user", content: prompt }],
                 response_format: { type: "json_object" } 
             })
         });
@@ -188,8 +132,6 @@ function App() {
         if (data.error) { alert(`OpenAI Error: ${data.error.message}`); return; }
 
         const content = JSON.parse(data.choices[0].message.content);
-        console.log("AI OUTPUT:", content);
-
         let picks = content.picks || content;
         if (!Array.isArray(picks)) picks = [picks];
 
@@ -198,26 +140,22 @@ function App() {
             const safeTeam2 = p.team2 || "";
             const safeSel = p.selection || "";
             
-            // Try to match
             const game = findGameForTeam(safeTeam1) || findGameForTeam(safeTeam2) || findGameForTeam(safeSel);
             
-            // Log Failures
-            if (!game) {
-                console.warn(`FAILED TO MATCH: ${safeTeam1} / ${safeTeam2} / ${safeSel}`);
-            }
+            // 🔥 VISUAL DEBUGGING
+            const debugName = game 
+                ? p.selection 
+                : `⚠️ UNMATCHED: ${p.selection}`; 
 
             return {
                 ...p,
+                selection: debugName, // Modify name so it shows RED in modal if unmatched
                 gameId: game ? game.id : null,
                 expert: sourceData.name,
                 rationale: p.summary,
-                matchName: game ? `${game.visitor} @ ${game.home}` : "UNKNOWN GAME"
+                matched: !!game
             };
         });
-
-        if (processedPicks.length === 0) {
-            alert("The AI returned 0 picks.");
-        }
 
         setStagedPicks(processedPicks);
         setShowAudio(false);
@@ -229,25 +167,22 @@ function App() {
     }
   };
 
-  // --- SAVE LOGIC (WITH DIAGNOSTICS) ---
   const handleConfirmPicks = () => {
       const newConsensus = { ...expertConsensus };
       let savedCount = 0;
-      let skippedCount = 0;
-      let failedMatches = [];
+      let failedPicks = [];
 
       stagedPicks.forEach(p => {
           if (!p.gameId) {
-              skippedCount++;
-              failedMatches.push(p.selection);
+              failedPicks.push(p.selection);
               return;
           }
 
-          if (!newConsensus[p.gameId]) {
-              newConsensus[p.gameId] = { expertPicks: { spread: [], total: [] } };
-          }
+          if (!newConsensus[p.gameId]) newConsensus[p.gameId] = { expertPicks: { spread: [], total: [] } };
+          
+          // Clean the selection name (remove warning flag)
+          const cleanSelection = p.selection.replace("⚠️ UNMATCHED: ", "");
 
-          // DEEP COPY
           const updatedGameData = {
               ...newConsensus[p.gameId],
               expertPicks: {
@@ -259,7 +194,7 @@ function App() {
 
           const category = p.type === 'Total' ? 'total' : 'spread';
           updatedGameData.expertPicks[category].push({
-              expert: p.expert, pick: p.selection, line: p.line, pickType: p.type,
+              expert: p.expert, pick: cleanSelection, line: p.line, pickType: p.type,
               analysis: p.analysis, rationale: p.rationale, units: p.units
           });
 
@@ -271,14 +206,14 @@ function App() {
       setShowReview(false);
       setStagedPicks([]);
       
-      if (skippedCount > 0) {
-          alert(`Saved ${savedCount} picks.\n\n⚠️ SKIPPED ${skippedCount} PICKS:\n${failedMatches.join("\n")}\n\nREASON: Could not match these teams to the Week 17 Schedule.\nCheck the browser console (F12) to see what Team Names the schedule is expecting.`);
+      if (failedPicks.length > 0) {
+          alert(`Saved ${savedCount} picks.\n\n❌ FAILED to match ${failedPicks.length} picks:\n${failedPicks.join("\n")}`);
       } else {
           alert(`Success! ${savedCount} picks added to the Board.`);
       }
   };
 
-  // --- REST OF HANDLERS (Unchanged) ---
+  // --- BOILERPLATE HANDLERS ---
   const handleUpdatePick = (gameId, oldPick, newPickData) => {
       const newConsensus = { ...expertConsensus };
       const gamePicks = newConsensus[gameId].expertPicks;
@@ -289,17 +224,13 @@ function App() {
           setExpertConsensus(newConsensus);
       }
   };
-
   const handleDeletePick = (gameId, pickToDelete) => {
       if(!window.confirm("Delete this pick?")) return;
       const newConsensus = { ...expertConsensus };
       const category = pickToDelete.type === 'Total' ? 'total' : 'spread';
-      newConsensus[gameId].expertPicks[category] = newConsensus[gameId].expertPicks[category].filter(p => 
-          !(p.expert === pickToDelete.expert && p.pick === pickToDelete.pick)
-      );
+      newConsensus[gameId].expertPicks[category] = newConsensus[gameId].expertPicks[category].filter(p => !(p.expert === pickToDelete.expert && p.pick === pickToDelete.pick));
       setExpertConsensus(newConsensus);
   };
-
   const handleClearExpert = (expertName) => {
       const newConsensus = { ...expertConsensus };
       Object.keys(newConsensus).forEach(gameId => {
@@ -308,30 +239,25 @@ function App() {
       });
       setExpertConsensus(newConsensus);
   };
-  const handleBulkImport = (text) => { alert("Bulk Text received. Logic coming soon."); };
+  const handleBulkImport = (text) => { alert("Bulk Text received."); };
   const handleBet = (gameId, type, selection, line) => {
-    const game = WEEK_17_SCHEDULE.find(g => g.id === gameId);
+    const game = ACTIVE_SCHEDULE.find(g => g.id === gameId);
     setMyBets([{ id: Date.now(), game: `${game.visitor} @ ${game.home}`, gameId, selection, type, line, odds: -110, status: 'OPEN' }, ...myBets]);
     setSelectedGame(null);
   };
   const removeBet = (id) => setMyBets(myBets.filter(b => b.id !== id));
   const handleLockBets = (betIds) => setMyBets(prev => prev.map(bet => (betIds.includes(bet.id) ? { ...bet, status: 'PLACED' } : bet)));
+
   if (loading) return <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center text-[#00d2be] font-mono">Loading Data Engine...</div>;
 
   return (
     <div className="min-h-screen bg-[#0f0f0f] text-gray-200 font-sans pb-20 selection:bg-[#00d2be] selection:text-black">
-      <Header 
-        activeTab={activeTab} setActiveTab={setActiveTab} cartCount={myBets.length} 
-        onSyncOdds={() => console.log("Sync")} onOpenSplits={() => setShowPulse(true)}     
-        onOpenTeasers={() => setShowTeasers(true)} onOpenContest={() => setShowContest(true)}  
-        onImport={() => setShowImport(true)} onAnalyze={() => setShowAudio(true)} onManage={() => setShowExpertMgr(true)} 
-        onSave={() => alert("Save functionality coming soon")} onReset={() => { if(window.confirm("Reset all picks?")) setMyBets([]); }}
-      />
+      <Header activeTab={activeTab} setActiveTab={setActiveTab} cartCount={myBets.length} onSyncOdds={() => console.log("Sync")} onOpenSplits={() => setShowPulse(true)} onOpenTeasers={() => setShowTeasers(true)} onOpenContest={() => setShowContest(true)} onImport={() => setShowImport(true)} onAnalyze={() => setShowAudio(true)} onManage={() => setShowExpertMgr(true)} onSave={() => alert("Save functionality coming soon")} onReset={() => { if(window.confirm("Reset all picks?")) setMyBets([]); }}/>
       <main className="max-w-7xl mx-auto px-4 py-8">
         {activeTab === 'dashboard' && <div className="animate-in fade-in zoom-in duration-300"><Dashboard schedule={gamesWithSplits} stats={stats} simResults={simResults} onGameClick={setSelectedGame} /></div>}
         {activeTab === 'standings' && <Standings experts={INITIAL_EXPERTS} />}
         {activeTab === 'mycard' && <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300"><MyCardModal bets={myBets} onRemoveBet={removeBet} onLockBets={handleLockBets} onClearCard={() => setMyBets([])} /></div>}
-        {activeTab === 'devlab' && <DevLab games={WEEK_17_SCHEDULE} stats={stats} savedResults={simResults} onSimComplete={setSimResults} />}
+        {activeTab === 'devlab' && <DevLab games={ACTIVE_SCHEDULE} stats={stats} savedResults={simResults} onSimComplete={setSimResults} />}
       </main>
       <MatchupWizardModal isOpen={!!selectedGame} game={selectedGame} stats={stats} currentWizardData={selectedGame ? (expertConsensus[selectedGame.id] || null) : null} onClose={() => setSelectedGame(null)} onBet={(id, type, sel, line) => { handleBet(id, type, sel, line); setSelectedGame(null); }} />
       <PulseModal isOpen={showPulse} onClose={() => setShowPulse(false)} games={gamesWithSplits} />
@@ -345,4 +271,5 @@ function App() {
     </div>
   );
 }
+
 export default App;
