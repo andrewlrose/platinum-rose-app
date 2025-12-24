@@ -63,11 +63,12 @@ function App() {
       };
   });
 
-  // --- AI LOGIC (FIXED) ---
+  // --- AI LOGIC (UPDATED: NO FILTER) ---
   const handleAIAnalyze = async (text, sourceData) => {
     try {
         console.log("Analyzing text...");
         
+        // 1. Updated Prompt: More robust instructions
         const prompt = `
         Analyze this transcript and extract NFL betting picks.
         Source: ${sourceData.name}
@@ -115,11 +116,13 @@ function App() {
         let picks = content.picks || content;
         if (!Array.isArray(picks)) picks = [picks];
 
+        // 3. Robust Mapping (NO FILTERING)
         const processedPicks = picks.map(p => {
             const safeTeam1 = p.team1 || "";
             const safeTeam2 = p.team2 || "";
             const safeSel = p.selection || "";
 
+            // Attempt to find game
             const game = WEEK_17_SCHEDULE.find(g => 
                 (g.home.includes(safeTeam1) || g.visitor.includes(safeTeam1)) || 
                 (g.home.includes(safeTeam2) || g.visitor.includes(safeTeam2)) ||
@@ -128,14 +131,16 @@ function App() {
             
             return {
                 ...p,
-                gameId: game ? game.id : null,
+                gameId: game ? game.id : null, // Keeps pick even if gameId is null
                 expert: sourceData.name,
                 rationale: p.summary
             };
-        }).filter(p => p.gameId);
+        });
 
+        // 🔥 REMOVED THE .filter() HERE so you can see the raw output
+        
         if (processedPicks.length === 0) {
-            alert("Analysis complete, but no matching games were found. Check team names in the transcript.");
+            alert("The AI returned 0 picks. Try a shorter transcript or check the text.");
         }
 
         setStagedPicks(processedPicks);
@@ -148,20 +153,33 @@ function App() {
     }
   };
 
+  // --- SAVE LOGIC (UPDATED: SAFETY CHECK) ---
   const handleConfirmPicks = () => {
       const newConsensus = { ...expertConsensus };
+      let savedCount = 0;
+
       stagedPicks.forEach(p => {
+          // Safety: Skip picks that didn't match a game
+          if (!p.gameId) return;
+
           if (!newConsensus[p.gameId]) newConsensus[p.gameId] = { expertPicks: { spread: [], total: [] } };
           const category = p.type === 'Total' ? 'total' : 'spread';
           newConsensus[p.gameId].expertPicks[category].push({
               expert: p.expert, pick: p.selection, line: p.line, pickType: p.type,
               analysis: p.analysis, rationale: p.rationale, units: p.units
           });
+          savedCount++;
       });
+
       setExpertConsensus(newConsensus);
       setShowReview(false);
       setStagedPicks([]);
-      alert(`Success! ${stagedPicks.length} new picks added.`);
+      
+      if (savedCount < stagedPicks.length) {
+          alert(`Saved ${savedCount} picks. (${stagedPicks.length - savedCount} were skipped because the team names didn't match the schedule).`);
+      } else {
+          alert(`Success! ${savedCount} new picks added.`);
+      }
   };
 
   const handleUpdatePick = (gameId, oldPick, newPickData) => {
