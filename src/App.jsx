@@ -15,7 +15,7 @@ import ContestLinesModal from './components/modals/ContestLinesModal';
 import AudioUploadModal from './components/modals/AudioUploadModal';
 import ReviewPicksModal from './components/modals/ReviewPicksModal';
 import BulkImportModal from './components/modals/BulkImportModal'; 
-import ExpertManagerModal from './components/modals/ExpertManagerModal'; // 🔥 NEW
+import ExpertManagerModal from './components/modals/ExpertManagerModal'; 
 
 function App() {
   const [stats, setStats] = useState([]);
@@ -32,7 +32,7 @@ function App() {
   const [showAudio, setShowAudio] = useState(false);     
   const [showReview, setShowReview] = useState(false);   
   const [showImport, setShowImport] = useState(false);   
-  const [showExpertMgr, setShowExpertMgr] = useState(false); // 🔥 NEW
+  const [showExpertMgr, setShowExpertMgr] = useState(false); 
 
   const [myBets, setMyBets] = useState([]);
   const [simResults, setSimResults] = useState({});
@@ -127,7 +127,6 @@ function App() {
       const gamePicks = newConsensus[gameId].expertPicks;
       const category = oldPick.type === 'Total' ? 'total' : 'spread';
       
-      // Find and update
       const index = gamePicks[category].findIndex(p => p.expert === oldPick.expert && p.pick === oldPick.pick);
       if (index !== -1) {
           gamePicks[category][index] = { ...gamePicks[category][index], ...newPickData };
@@ -154,7 +153,7 @@ function App() {
       setExpertConsensus(newConsensus);
   };
 
-  const handleBulkImport = (text) => { alert("Bulk Text received. Parsing logic would go here."); };
+  const handleBulkImport = (text) => { alert("Bulk Text received."); };
 
   const handleBet = (gameId, type, selection, line) => {
     const game = WEEK_17_SCHEDULE.find(g => g.id === gameId);
@@ -181,43 +180,29 @@ function App() {
         onImport={() => setShowImport(true)} 
         onAnalyze={() => setShowAudio(true)} 
         
-        // 🔥 RE-WIRED SAVE TO OPEN MANAGER FOR NOW (Or you can add a new button)
-        onSave={() => setShowExpertMgr(true)} 
+        // 🔥 WIRED UP
+        onManage={() => setShowExpertMgr(true)} 
+        
+        onSave={() => alert("Save functionality coming soon")} 
         onReset={() => { if(window.confirm("Reset all picks?")) setMyBets([]); }}
       />
 
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {activeTab === 'dashboard' && (
-            <div className="animate-in fade-in zoom-in duration-300">
-                <Dashboard schedule={gamesWithSplits} stats={stats} simResults={simResults} onGameClick={setSelectedGame} />
-            </div>
-        )}
+        {activeTab === 'dashboard' && <div className="animate-in fade-in zoom-in duration-300"><Dashboard schedule={gamesWithSplits} stats={stats} simResults={simResults} onGameClick={setSelectedGame} /></div>}
         {activeTab === 'standings' && <Standings experts={INITIAL_EXPERTS} />}
         {activeTab === 'mycard' && <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300"><MyCardModal bets={myBets} onRemoveBet={removeBet} onLockBets={handleLockBets} onClearCard={() => setMyBets([])} /></div>}
         {activeTab === 'devlab' && <DevLab games={WEEK_17_SCHEDULE} stats={stats} savedResults={simResults} onSimComplete={setSimResults} />}
       </main>
 
-      {/* --- MODALS --- */}
       <MatchupWizardModal isOpen={!!selectedGame} game={selectedGame} stats={stats} currentWizardData={selectedGame ? (expertConsensus[selectedGame.id] || null) : null} onClose={() => setSelectedGame(null)} onBet={(id, type, sel, line) => { handleBet(id, type, sel, line); setSelectedGame(null); }} />
       <PulseModal isOpen={showPulse} onClose={() => setShowPulse(false)} games={gamesWithSplits} />
       <ContestLinesModal isOpen={showContest} onClose={() => setShowContest(false)} games={gamesWithSplits} onUpdateContestLines={setContestLines} />
       <WongTeaserModal isOpen={showTeasers} onClose={() => setShowTeasers(false)} games={gamesWithSplits} />
       <SplitsModal isOpen={showSplits} onClose={() => setShowSplits(false)} games={gamesWithSplits} />
-
       <AudioUploadModal isOpen={showAudio} onClose={() => setShowAudio(false)} onAnalyze={handleAIAnalyze} />
       <ReviewPicksModal isOpen={showReview} onClose={() => setShowReview(false)} stagedPicks={stagedPicks} onConfirm={handleConfirmPicks} onDiscard={(idx) => setStagedPicks(stagedPicks.filter((_, i) => i !== idx))} />
       <BulkImportModal isOpen={showImport} onClose={() => setShowImport(false)} onImport={handleBulkImport} />
-      
-      {/* 🔥 EXPERT MANAGER */}
-      <ExpertManagerModal 
-          isOpen={showExpertMgr} 
-          onClose={() => setShowExpertMgr(false)}
-          experts={INITIAL_EXPERTS}
-          expertConsensus={expertConsensus}
-          onUpdatePick={handleUpdatePick}
-          onDeletePick={handleDeletePick}
-          onClearExpert={handleClearExpert}
-      />
+      <ExpertManagerModal isOpen={showExpertMgr} onClose={() => setShowExpertMgr(false)} experts={INITIAL_EXPERTS} expertConsensus={expertConsensus} onUpdatePick={handleUpdatePick} onDeletePick={handleDeletePick} onClearExpert={handleClearExpert} />
 
     </div>
   );

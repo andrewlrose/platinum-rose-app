@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Trophy, Mic2, RefreshCw, Activity, ListFilter, Split, ShoppingBag, Save, UploadCloud, RotateCcw, Mic } from 'lucide-react';
+import { LayoutDashboard, Trophy, Mic2, RefreshCw, Activity, ListFilter, Split, ShoppingBag, Save, UploadCloud, RotateCcw, Mic, Shield } from 'lucide-react';
 
 export default function Header({ 
   activeTab, 
@@ -9,8 +9,9 @@ export default function Header({
   onOpenSplits,   
   onOpenTeasers,  
   onOpenContest,
-  onImport,       // ☁️ Trigger Bulk Import
-  onAnalyze,      // 🎤 Trigger AI Transcript
+  onImport,       
+  onAnalyze,      
+  onManage,       // 🔥 NEW: Dedicated Manager Prop
   onSave,
   onReset
 }) {
@@ -94,11 +95,17 @@ export default function Header({
 
             {/* RIGHT: DATA BUTTONS */}
             <div className="flex items-center justify-end gap-2 w-auto">
-                {/* 🎤 THE MISSING BUTTONS */}
                 <div className="hidden md:flex items-center gap-2">
+                    {/* 🔥 NEW SHIELD BUTTON */}
+                    <IconButton onClick={onManage} icon={Shield} label="Expert Mgr" colorClass="text-amber-400 hover:text-amber-300 hover:border-amber-500/30" />
+                    
+                    <div className="h-6 w-px bg-slate-800 mx-1"></div>
+
                     <IconButton onClick={onAnalyze} icon={Mic} label="AI Transcript" colorClass="text-indigo-400 hover:text-indigo-300 hover:border-indigo-500/30" />
                     <IconButton onClick={onImport} icon={UploadCloud} label="Bulk Import" colorClass="text-blue-400 hover:text-blue-300 hover:border-blue-500/30" />
+                    
                     <div className="h-6 w-px bg-slate-800 mx-1"></div>
+
                     <IconButton onClick={onSave} icon={Save} label="Save Picks" colorClass="text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/30" />
                     <IconButton onClick={onReset} icon={RotateCcw} label="Reset Card" colorClass="text-rose-400 hover:text-rose-300 hover:border-rose-500/30" />
                 </div>
@@ -120,7 +127,7 @@ export default function Header({
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 p-2 z-50 flex justify-around pb-safe">
           <button onClick={() => setActiveTab('dashboard')} className={`p-2 rounded-lg flex flex-col items-center gap-1 ${activeTab === 'dashboard' ? 'text-emerald-400' : 'text-slate-500'}`}><LayoutDashboard size={20}/><span className="text-[10px] font-bold">Board</span></button>
           <button onClick={() => setActiveTab('mycard')} className={`p-2 rounded-lg flex flex-col items-center gap-1 relative ${activeTab === 'mycard' ? 'text-emerald-400' : 'text-slate-500'}`}><ShoppingBag size={20}/>{cartCount > 0 && <span className="absolute top-1 right-2 w-2 h-2 bg-emerald-500 rounded-full"></span>}<span className="text-[10px] font-bold">Card</span></button>
-          <button onClick={() => setActiveTab('devlab')} className={`p-2 rounded-lg flex flex-col items-center gap-1 ${activeTab === 'devlab' ? 'text-emerald-400' : 'text-slate-500'}`}><Mic2 size={20}/><span className="text-[10px] font-bold">AI Lab</span></button>
+          <button onClick={onManage} className="p-2 rounded-lg flex flex-col items-center gap-1 text-amber-500"><Shield size={20}/><span className="text-[10px] font-bold">Experts</span></button>
           <button onClick={onAnalyze} className="p-2 rounded-lg flex flex-col items-center gap-1 text-indigo-500"><Mic size={20}/><span className="text-[10px] font-bold">Record</span></button>
       </div>
     </header>
