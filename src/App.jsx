@@ -17,6 +17,43 @@ import ReviewPicksModal from './components/modals/ReviewPicksModal';
 import BulkImportModal from './components/modals/BulkImportModal'; 
 import ExpertManagerModal from './components/modals/ExpertManagerModal'; 
 
+// 🔥 NEW: SUPER MATCHER DICTIONARY
+// Maps common nicknames/cities to a value we can search in the Schedule
+const TEAM_ALIASES = {
+    "cardinals": "cardinals", "arizona": "cardinals", "cards": "cardinals",
+    "falcons": "falcons", "atlanta": "falcons",
+    "ravens": "ravens", "baltimore": "ravens",
+    "bills": "bills", "buffalo": "bills",
+    "panthers": "panthers", "carolina": "panthers",
+    "bears": "bears", "chicago": "bears",
+    "bengals": "bengals", "cincinnati": "bengals", "cincy": "bengals",
+    "browns": "browns", "cleveland": "browns",
+    "cowboys": "cowboys", "dallas": "cowboys",
+    "broncos": "broncos", "denver": "broncos",
+    "lions": "lions", "detroit": "lions",
+    "packers": "packers", "green bay": "packers",
+    "texans": "texans", "houston": "texans",
+    "colts": "colts", "indianapolis": "colts", "indy": "colts",
+    "jaguars": "jaguars", "jacksonville": "jaguars", "jags": "jaguars",
+    "chiefs": "chiefs", "kansas city": "chiefs", "kc": "chiefs",
+    "raiders": "raiders", "las vegas": "raiders", "vegas": "raiders",
+    "chargers": "chargers", "los angeles chargers": "chargers", "la chargers": "chargers", "bolts": "chargers",
+    "rams": "rams", "los angeles rams": "rams", "la rams": "rams",
+    "dolphins": "dolphins", "miami": "dolphins", "fins": "dolphins",
+    "vikings": "vikings", "minnesota": "vikings", "minny": "vikings",
+    "patriots": "patriots", "new england": "patriots", "pats": "patriots",
+    "saints": "saints", "new orleans": "saints",
+    "giants": "giants", "ny giants": "giants", "new york giants": "giants", "gmen": "giants",
+    "jets": "jets", "ny jets": "jets", "new york jets": "jets", "gang green": "jets",
+    "eagles": "eagles", "philadelphia": "eagles", "philly": "eagles",
+    "steelers": "steelers", "pittsburgh": "steelers",
+    "49ers": "49ers", "san francisco": "49ers", "niners": "49ers", "sf": "49ers",
+    "seahawks": "seahawks", "seattle": "seahawks",
+    "buccaneers": "buccaneers", "tampa bay": "buccaneers", "tampa": "buccaneers", "bucs": "buccaneers",
+    "titans": "titans", "tennessee": "titans",
+    "commanders": "commanders", "washington": "commanders", "commies": "commanders"
+};
+
 function App() {
   const [stats, setStats] = useState([]);
   const [splits, setSplits] = useState({}); 
@@ -63,38 +100,35 @@ function App() {
       };
   });
 
-  // --- HELPER: FUZZY TEAM MATCHER ---
-  const findGameForTeam = (teamName) => {
-      if (!teamName) return null;
-      const clean = teamName.toLowerCase().trim();
+  // --- 🔥 NEW: ROBUST FUZZY MATCHER ---
+  const findGameForTeam = (rawInput) => {
+      if (!rawInput) return null;
       
-      // 1. Direct Match
-      let game = WEEK_17_SCHEDULE.find(g => 
-          g.home.toLowerCase().includes(clean) || 
-          g.visitor.toLowerCase().includes(clean)
-      );
-      if (game) return game;
-
-      // 2. Nickname Matcher
-      const nicknames = {
-          "niners": "49ers", "san fran": "49ers",
-          "bucs": "buccaneers", "tampa": "buccaneers",
-          "fins": "dolphins", "miami": "dolphins",
-          "pats": "patriots", "new england": "patriots",
-          "cards": "cardinals", "arizona": "cardinals",
-          "commies": "commanders", "washington": "commanders",
-          "jags": "jaguars", "jacksonville": "jaguars"
-      };
-
-      for (const [nick, real] of Object.entries(nicknames)) {
-          if (clean.includes(nick)) {
-              return WEEK_17_SCHEDULE.find(g => g.home.toLowerCase().includes(real) || g.visitor.toLowerCase().includes(real));
+      // 1. Clean the input (remove " +3", " -110", etc.)
+      const cleanInput = rawInput.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim();
+      
+      // 2. Search aliases
+      let searchKey = "";
+      for (const [alias, standard] of Object.entries(TEAM_ALIASES)) {
+          if (cleanInput.includes(alias)) {
+              searchKey = standard;
+              break;
           }
       }
-      return null;
+      
+      // If no alias found, try the raw input
+      if (!searchKey) searchKey = cleanInput;
+
+      // 3. Match against Schedule
+      return WEEK_17_SCHEDULE.find(g => 
+          g.home.toLowerCase().includes(searchKey) || 
+          g.visitor.toLowerCase().includes(searchKey) ||
+          searchKey.includes(g.home.toLowerCase()) || // Reverse check
+          searchKey.includes(g.visitor.toLowerCase())
+      );
   };
 
-  // --- AI LOGIC (ROBUST VERSION) ---
+  // --- AI LOGIC ---
   const handleAIAnalyze = async (text, sourceData) => {
     try {
         console.log("Analyzing text...");
@@ -143,8 +177,6 @@ function App() {
         }
 
         const content = JSON.parse(data.choices[0].message.content);
-        console.log("AI RAW OUTPUT:", content);
-
         let picks = content.picks || content;
         if (!Array.isArray(picks)) picks = [picks];
 
@@ -153,13 +185,16 @@ function App() {
             const safeTeam2 = p.team2 || "";
             const safeSel = p.selection || "";
 
+            // 🔥 USE NEW MATCHER
             const game = findGameForTeam(safeTeam1) || findGameForTeam(safeTeam2) || findGameForTeam(safeSel);
             
             return {
                 ...p,
                 gameId: game ? game.id : null,
                 expert: sourceData.name,
-                rationale: p.summary
+                rationale: p.summary,
+                // Add a flag so we know if it matched
+                matched: !!game
             };
         });
 
@@ -173,55 +208,56 @@ function App() {
 
     } catch (error) {
         console.error("AI Processing Error:", error);
-        alert("Error parsing transcript. Check console (F12) for details.");
+        alert("Error parsing transcript. Check console (F12).");
     }
   };
 
-  // --- SAVE LOGIC (FIXED: IMMUTABLE STATE UPDATE) ---
+  // --- SAVE LOGIC ---
   const handleConfirmPicks = () => {
-      // 1. Start with a shallow copy of the main state object
       const newConsensus = { ...expertConsensus };
       let savedCount = 0;
+      let skippedCount = 0;
 
       stagedPicks.forEach(p => {
-          // If we still don't have a game ID, we can't save it to the board.
-          if (!p.gameId) return;
+          if (!p.gameId) {
+              skippedCount++;
+              return;
+          }
 
-          // 2. Ensure the structure exists for this gameId if it's new
           if (!newConsensus[p.gameId]) {
               newConsensus[p.gameId] = { expertPicks: { spread: [], total: [] } };
           }
 
-          // 3. CRITICAL FIX: Deep copy the specific game object we are modifying.
-          // We must copy down to the array level so React detects the change.
+          // Deep Copy for React Reactivity
           const updatedGameData = {
               ...newConsensus[p.gameId],
               expertPicks: {
                   ...newConsensus[p.gameId].expertPicks,
-                  // Copy the arrays so we don't mutate original state
                   spread: [...newConsensus[p.gameId].expertPicks.spread],
                   total: [...newConsensus[p.gameId].expertPicks.total],
               }
           };
 
           const category = p.type === 'Total' ? 'total' : 'spread';
-
-          // 4. Push to the FRESHLY COPIED array
           updatedGameData.expertPicks[category].push({
               expert: p.expert, pick: p.selection, line: p.line, pickType: p.type,
               analysis: p.analysis, rationale: p.rationale, units: p.units
           });
 
-          // 5. Update the main state copy with the new game data object
           newConsensus[p.gameId] = updatedGameData;
           savedCount++;
       });
 
-      // 6. Update state with the new object tree
       setExpertConsensus(newConsensus);
       setShowReview(false);
       setStagedPicks([]);
-      alert(`Success! ${savedCount} valid picks added to the board.`);
+      
+      // 🔥 FEEDBACK TO USER
+      if (skippedCount > 0) {
+          alert(`Success! ${savedCount} picks saved.\n⚠️ ${skippedCount} picks were skipped because the team names couldn't be matched to the schedule.`);
+      } else {
+          alert(`Success! ${savedCount} picks added to the Board.`);
+      }
   };
 
   const handleUpdatePick = (gameId, oldPick, newPickData) => {
