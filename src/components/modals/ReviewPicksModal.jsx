@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrainCircuit, X, Activity, CheckCircle2, AlertTriangle, Trash2 } from 'lucide-react';
+import { BrainCircuit, X, CheckCircle2, AlertTriangle, Trash2 } from 'lucide-react';
 
 export default function ReviewPicksModal({ isOpen, onClose, stagedPicks, onConfirm, onDiscard }) {
   if (!isOpen) return null;
@@ -16,7 +16,7 @@ export default function ReviewPicksModal({ isOpen, onClose, stagedPicks, onConfi
              </div>
              <div>
                  <h3 className="font-bold text-white text-lg">AI Parser Review</h3>
-                 <p className="text-xs text-slate-400">{stagedPicks.length} picks extracted from transcript</p>
+                 <p className="text-xs text-slate-400">{stagedPicks.length} picks extracted</p>
              </div>
           </div>
           <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors"><X size={24}/></button>
@@ -28,7 +28,7 @@ export default function ReviewPicksModal({ isOpen, onClose, stagedPicks, onConfi
              <div className="flex flex-col items-center justify-center py-12 text-slate-500 border-2 border-dashed border-slate-800 rounded-xl">
                  <AlertTriangle size={48} className="mb-4 opacity-20" />
                  <p className="font-bold">No picks detected.</p>
-                 <p className="text-sm">Try pasting a cleaner transcript or checking the API key.</p>
+                 <p className="text-sm">Try pasting a cleaner transcript.</p>
              </div>
           ) : (
             <div className="space-y-4">
@@ -48,7 +48,7 @@ export default function ReviewPicksModal({ isOpen, onClose, stagedPicks, onConfi
                           </span>
                       </div>
                       
-                      {/* Rationale / Summary */}
+                      {/* Rationale */}
                       <div className="mb-3">
                          {pick.summary && (
                              <ul className="list-disc pl-4 space-y-1">
@@ -59,9 +59,9 @@ export default function ReviewPicksModal({ isOpen, onClose, stagedPicks, onConfi
                          )}
                       </div>
                       
-                      {/* Quote Context */}
+                      {/* Context */}
                       <div className="text-[10px] text-slate-500 italic border-t border-slate-700/50 pt-2 flex gap-2">
-                          <span className="font-bold text-slate-600">Context:</span> "{pick.analysis.substring(0, 120)}..."
+                          <span className="font-bold text-slate-600">Context:</span> "{pick.analysis ? pick.analysis.substring(0, 100) : ''}..."
                       </div>
                   </div>
 
@@ -89,7 +89,7 @@ export default function ReviewPicksModal({ isOpen, onClose, stagedPicks, onConfi
                 disabled={stagedPicks.length === 0} 
                 className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl text-white font-bold flex items-center gap-2 shadow-lg shadow-emerald-900/20 transition-all"
             >
-                <CheckCircle2 size={18} /> Confirm & Add to Board
+                <CheckCircle2 size={18} /> Confirm & Add
             </button>
         </div>
       </div>
