@@ -63,12 +63,42 @@ function App() {
       };
   });
 
-  // --- AI LOGIC (UPDATED: NO FILTER) ---
+  // --- HELPER: FUZZY TEAM MATCHER ---
+  const findGameForTeam = (teamName) => {
+      if (!teamName) return null;
+      const clean = teamName.toLowerCase().trim();
+      
+      // 1. Direct Match
+      let game = WEEK_17_SCHEDULE.find(g => 
+          g.home.toLowerCase().includes(clean) || 
+          g.visitor.toLowerCase().includes(clean)
+      );
+      if (game) return game;
+
+      // 2. Nickname Matcher (Add more as needed)
+      const nicknames = {
+          "niners": "49ers", "san fran": "49ers",
+          "bucs": "buccaneers", "tampa": "buccaneers",
+          "fins": "dolphins", "miami": "dolphins",
+          "pats": "patriots", "new england": "patriots",
+          "cards": "cardinals", "arizona": "cardinals",
+          "commies": "commanders", "washington": "commanders",
+          "jags": "jaguars", "jacksonville": "jaguars"
+      };
+
+      for (const [nick, real] of Object.entries(nicknames)) {
+          if (clean.includes(nick)) {
+              return WEEK_17_SCHEDULE.find(g => g.home.toLowerCase().includes(real) || g.visitor.toLowerCase().includes(real));
+          }
+      }
+      return null;
+  };
+
+  // --- AI LOGIC (ROBUST VERSION) ---
   const handleAIAnalyze = async (text, sourceData) => {
     try {
         console.log("Analyzing text...");
         
-        // 1. Updated Prompt: More robust instructions
         const prompt = `
         Analyze this transcript and extract NFL betting picks.
         Source: ${sourceData.name}
@@ -113,6 +143,8 @@ function App() {
         }
 
         const content = JSON.parse(data.choices[0].message.content);
+        console.log("AI RAW OUTPUT:", content); // 🔥 DEBUG LOG
+
         let picks = content.picks || content;
         if (!Array.isArray(picks)) picks = [picks];
 
@@ -122,12 +154,8 @@ function App() {
             const safeTeam2 = p.team2 || "";
             const safeSel = p.selection || "";
 
-            // Attempt to find game
-            const game = WEEK_17_SCHEDULE.find(g => 
-                (g.home.includes(safeTeam1) || g.visitor.includes(safeTeam1)) || 
-                (g.home.includes(safeTeam2) || g.visitor.includes(safeTeam2)) ||
-                (g.home.includes(safeSel) || g.visitor.includes(safeSel))
-            );
+            // Attempt to find game using Fuzzy Matcher
+            const game = findGameForTeam(safeTeam1) || findGameForTeam(safeTeam2) || findGameForTeam(safeSel);
             
             return {
                 ...p,
@@ -137,10 +165,9 @@ function App() {
             };
         });
 
-        // 🔥 REMOVED THE .filter() HERE so you can see the raw output
-        
+        // 🔥 CRITICAL: NO FILTER HERE. We send EVERYTHING to the modal.
         if (processedPicks.length === 0) {
-            alert("The AI returned 0 picks. Try a shorter transcript or check the text.");
+            alert("The AI returned 0 picks. Try pasting the text again.");
         }
 
         setStagedPicks(processedPicks);
@@ -149,17 +176,16 @@ function App() {
 
     } catch (error) {
         console.error("AI Processing Error:", error);
-        alert("Error parsing transcript. Check console.");
+        alert("Error parsing transcript. Check console (F12) for details.");
     }
   };
 
-  // --- SAVE LOGIC (UPDATED: SAFETY CHECK) ---
   const handleConfirmPicks = () => {
       const newConsensus = { ...expertConsensus };
       let savedCount = 0;
 
       stagedPicks.forEach(p => {
-          // Safety: Skip picks that didn't match a game
+          // Skip picks that STILL don't have a gameId (user can't map them manually yet)
           if (!p.gameId) return;
 
           if (!newConsensus[p.gameId]) newConsensus[p.gameId] = { expertPicks: { spread: [], total: [] } };
@@ -174,12 +200,7 @@ function App() {
       setExpertConsensus(newConsensus);
       setShowReview(false);
       setStagedPicks([]);
-      
-      if (savedCount < stagedPicks.length) {
-          alert(`Saved ${savedCount} picks. (${stagedPicks.length - savedCount} were skipped because the team names didn't match the schedule).`);
-      } else {
-          alert(`Success! ${savedCount} new picks added.`);
-      }
+      alert(`Success! ${savedCount} valid picks added to the board.`);
   };
 
   const handleUpdatePick = (gameId, oldPick, newPickData) => {
