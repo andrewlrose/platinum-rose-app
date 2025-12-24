@@ -75,7 +75,7 @@ function App() {
       );
       if (game) return game;
 
-      // 2. Nickname Matcher (Add more as needed)
+      // 2. Nickname Matcher
       const nicknames = {
           "niners": "49ers", "san fran": "49ers",
           "bucs": "buccaneers", "tampa": "buccaneers",
@@ -143,29 +143,26 @@ function App() {
         }
 
         const content = JSON.parse(data.choices[0].message.content);
-        console.log("AI RAW OUTPUT:", content); // 🔥 DEBUG LOG
+        console.log("AI RAW OUTPUT:", content);
 
         let picks = content.picks || content;
         if (!Array.isArray(picks)) picks = [picks];
 
-        // 3. Robust Mapping (NO FILTERING)
         const processedPicks = picks.map(p => {
             const safeTeam1 = p.team1 || "";
             const safeTeam2 = p.team2 || "";
             const safeSel = p.selection || "";
 
-            // Attempt to find game using Fuzzy Matcher
             const game = findGameForTeam(safeTeam1) || findGameForTeam(safeTeam2) || findGameForTeam(safeSel);
             
             return {
                 ...p,
-                gameId: game ? game.id : null, // Keeps pick even if gameId is null
+                gameId: game ? game.id : null,
                 expert: sourceData.name,
                 rationale: p.summary
             };
         });
 
-        // 🔥 CRITICAL: NO FILTER HERE. We send EVERYTHING to the modal.
         if (processedPicks.length === 0) {
             alert("The AI returned 0 picks. Try pasting the text again.");
         }
@@ -180,23 +177,47 @@ function App() {
     }
   };
 
+  // --- SAVE LOGIC (FIXED: IMMUTABLE STATE UPDATE) ---
   const handleConfirmPicks = () => {
+      // 1. Start with a shallow copy of the main state object
       const newConsensus = { ...expertConsensus };
       let savedCount = 0;
 
       stagedPicks.forEach(p => {
-          // Skip picks that STILL don't have a gameId (user can't map them manually yet)
+          // If we still don't have a game ID, we can't save it to the board.
           if (!p.gameId) return;
 
-          if (!newConsensus[p.gameId]) newConsensus[p.gameId] = { expertPicks: { spread: [], total: [] } };
+          // 2. Ensure the structure exists for this gameId if it's new
+          if (!newConsensus[p.gameId]) {
+              newConsensus[p.gameId] = { expertPicks: { spread: [], total: [] } };
+          }
+
+          // 3. CRITICAL FIX: Deep copy the specific game object we are modifying.
+          // We must copy down to the array level so React detects the change.
+          const updatedGameData = {
+              ...newConsensus[p.gameId],
+              expertPicks: {
+                  ...newConsensus[p.gameId].expertPicks,
+                  // Copy the arrays so we don't mutate original state
+                  spread: [...newConsensus[p.gameId].expertPicks.spread],
+                  total: [...newConsensus[p.gameId].expertPicks.total],
+              }
+          };
+
           const category = p.type === 'Total' ? 'total' : 'spread';
-          newConsensus[p.gameId].expertPicks[category].push({
+
+          // 4. Push to the FRESHLY COPIED array
+          updatedGameData.expertPicks[category].push({
               expert: p.expert, pick: p.selection, line: p.line, pickType: p.type,
               analysis: p.analysis, rationale: p.rationale, units: p.units
           });
+
+          // 5. Update the main state copy with the new game data object
+          newConsensus[p.gameId] = updatedGameData;
           savedCount++;
       });
 
+      // 6. Update state with the new object tree
       setExpertConsensus(newConsensus);
       setShowReview(false);
       setStagedPicks([]);
