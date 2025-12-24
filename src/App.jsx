@@ -101,9 +101,16 @@ function App() {
 
   // --- DIAGNOSTIC STARTUP ---
   useEffect(() => {
+    console.log("--- SCHEDULE DIAGNOSTICS ---");
     if (!WEEK_17_SCHEDULE || WEEK_17_SCHEDULE.length === 0) {
-        console.warn("Using Backup Schedule.");
+        console.warn("⚠️ IMPORTED SCHEDULE IS EMPTY. Switching to Backup.");
+        console.log("ACTIVE SCHEDULE (Backup):", BACKUP_SCHEDULE);
+    } else {
+        console.log(`✅ Using Imported Schedule (${WEEK_17_SCHEDULE.length} games)`);
+        console.log("ACTIVE SCHEDULE (Imported):", WEEK_17_SCHEDULE);
     }
+    console.log("----------------------------");
+
     Promise.all([
         fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-data/main/weekly_stats.json").then(r => r.json()),
         fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-app/main/betting_splits.json").then(r => r.json()).catch(() => ({}))
@@ -133,7 +140,6 @@ function App() {
       // 1. Check Alias Dictionary
       for (const [alias, standard] of Object.entries(TEAM_ALIASES)) {
           if (clean.includes(alias)) {
-               // Search schedule for the STANDARD name (e.g., "jaguars")
                const standardClean = standard.toLowerCase();
                return ACTIVE_SCHEDULE.find(g => {
                     const h = g.home.toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -151,7 +157,7 @@ function App() {
       });
   };
 
-  // --- AI LOGIC ---
+  // --- AI LOGIC (WITH DEBUGGING) ---
   const handleAIAnalyze = async (text, sourceData) => {
     try {
         console.log("Analyzing text...");
@@ -177,23 +183,27 @@ function App() {
         if (data.error) { alert(`OpenAI Error: ${data.error.message}`); return; }
 
         const content = JSON.parse(data.choices[0].message.content);
-        console.log("AI RAW JSON:", JSON.stringify(content, null, 2)); // 🔥 Log full structure
-
         let picks = content.picks || content;
         if (!Array.isArray(picks)) picks = [picks];
 
-        // 🔥 KEY NORMALIZATION STEP
+        console.log("--- MATCHING PROCESS START ---");
         const processedPicks = picks.map(p => {
-            // 1. Fix missing keys (Handle 'pick' vs 'selection')
+            // 1. Normalize Keys
             let rawSelection = p.selection || p.pick || p.team || p.bet || "Unknown";
             
+            // 🔥 DEBUG LOGS
+            console.log(`🔎 Attempting to match: '${rawSelection}'`);
+
             // 2. Try to Match
             const game = findGameForTeam(rawSelection);
             
-            // 3. Fallback Name if match found
-            const displayName = game 
-                ? `${rawSelection} (${game.visitor} @ ${game.home})` 
-                : rawSelection;
+            if (game) {
+                console.log(`✅ MATCHED! Game ID: ${game.id} (${game.visitor} @ ${game.home})`);
+            } else {
+                console.error(`❌ FAILED TO MATCH: '${rawSelection}'. (Will be skipped on save)`);
+            }
+
+            const displayName = game ? rawSelection : `${rawSelection} (Unmatched)`;
 
             return {
                 ...p,
@@ -204,6 +214,7 @@ function App() {
                 matched: !!game
             };
         });
+        console.log("--- MATCHING PROCESS END ---");
 
         setStagedPicks(processedPicks);
         setShowAudio(false);
@@ -253,7 +264,7 @@ function App() {
       setStagedPicks([]);
       
       if (skippedCount > 0) {
-          alert(`Saved ${savedCount} picks.\n⚠️ Skipped ${skippedCount} picks because no game match was found.`);
+          alert(`Saved ${savedCount} picks.\n⚠️ Skipped ${skippedCount} picks because no game match was found. Check console (F12) for details.`);
       } else {
           alert(`Success! ${savedCount} picks added.`);
       }
