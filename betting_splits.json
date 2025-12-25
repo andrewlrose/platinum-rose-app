@@ -1,79 +1,79 @@
 {
   "1": {
     "id": 1,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
-        "visitorTicket": 69,
-        "homeTicket": 31,
-        "visitorMoney": 76,
-        "homeMoney": 24
+        "visitorTicket": 68,
+        "homeTicket": 32,
+        "visitorMoney": 70,
+        "homeMoney": 30
       },
       "total": {
         "overTicket": 58,
         "underTicket": 42,
-        "overMoney": 57,
-        "underMoney": 43
+        "overMoney": 60,
+        "underMoney": 40
       },
       "ml": {
-        "visitorTicket": 80,
-        "homeTicket": 20,
-        "visitorMoney": 73,
-        "homeMoney": 27
+        "visitorTicket": 79,
+        "homeTicket": 21,
+        "visitorMoney": 70,
+        "homeMoney": 30
       }
     }
   },
   "2": {
     "id": 2,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
         "visitorTicket": 74,
         "homeTicket": 26,
-        "visitorMoney": 79,
-        "homeMoney": 21
+        "visitorMoney": 78,
+        "homeMoney": 22
       },
       "total": {
-        "overTicket": 82,
-        "underTicket": 18,
-        "overMoney": 88,
-        "underMoney": 12
+        "overTicket": 81,
+        "underTicket": 19,
+        "overMoney": 87,
+        "underMoney": 13
       },
       "ml": {
-        "visitorTicket": 83,
-        "homeTicket": 17,
-        "visitorMoney": 82,
-        "homeMoney": 18
+        "visitorTicket": 82,
+        "homeTicket": 18,
+        "visitorMoney": 81,
+        "homeMoney": 19
       }
     }
   },
   "3": {
     "id": 3,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
-        "visitorTicket": 70,
-        "homeTicket": 30,
-        "visitorMoney": 75,
-        "homeMoney": 25
+        "visitorTicket": 69,
+        "homeTicket": 31,
+        "visitorMoney": 74,
+        "homeMoney": 26
       },
       "total": {
         "overTicket": 72,
         "underTicket": 28,
-        "overMoney": 83,
-        "underMoney": 17
+        "overMoney": 82,
+        "underMoney": 18
       },
       "ml": {
-        "visitorTicket": 83,
-        "homeTicket": 17,
-        "visitorMoney": 74,
-        "homeMoney": 26
+        "visitorTicket": 82,
+        "homeTicket": 18,
+        "visitorMoney": 71,
+        "homeMoney": 29
       }
     }
   },
   "4": {
     "id": 4,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
         "visitorTicket": 53,
@@ -82,10 +82,10 @@
         "homeMoney": 47
       },
       "total": {
-        "overTicket": 62,
-        "underTicket": 38,
-        "overMoney": 76,
-        "underMoney": 24
+        "overTicket": 55,
+        "underTicket": 45,
+        "overMoney": 75,
+        "underMoney": 25
       },
       "ml": {
         "visitorTicket": 52,
@@ -97,19 +97,19 @@
   },
   "5": {
     "id": 5,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
-        "visitorTicket": 29,
-        "homeTicket": 71,
+        "visitorTicket": 30,
+        "homeTicket": 70,
         "visitorMoney": 9,
         "homeMoney": 91
       },
       "total": {
-        "overTicket": 54,
-        "underTicket": 46,
-        "overMoney": 75,
-        "underMoney": 25
+        "overTicket": 46,
+        "underTicket": 54,
+        "overMoney": 74,
+        "underMoney": 26
       },
       "ml": {
         "visitorTicket": 31,
@@ -121,43 +121,43 @@
   },
   "6": {
     "id": 6,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
         "visitorTicket": 25,
         "homeTicket": 75,
-        "visitorMoney": 18,
-        "homeMoney": 82
+        "visitorMoney": 19,
+        "homeMoney": 81
       },
       "total": {
-        "overTicket": 47,
-        "underTicket": 53,
+        "overTicket": 40,
+        "underTicket": 60,
         "overMoney": 70,
         "underMoney": 30
       },
       "ml": {
-        "visitorTicket": 9,
-        "homeTicket": 91,
-        "visitorMoney": 53,
-        "homeMoney": 47
+        "visitorTicket": 8,
+        "homeTicket": 92,
+        "visitorMoney": 51,
+        "homeMoney": 49
       }
     }
   },
   "8": {
     "id": 8,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
-        "visitorTicket": 81,
-        "homeTicket": 19,
+        "visitorTicket": 82,
+        "homeTicket": 18,
         "visitorMoney": 77,
         "homeMoney": 23
       },
       "total": {
-        "overTicket": 63,
-        "underTicket": 37,
-        "overMoney": 92,
-        "underMoney": 8
+        "overTicket": 54,
+        "underTicket": 46,
+        "overMoney": 91,
+        "underMoney": 9
       },
       "ml": {
         "visitorTicket": 88,
@@ -169,7 +169,7 @@
   },
   "11": {
     "id": 11,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
         "visitorTicket": 74,
@@ -178,14 +178,14 @@
         "homeMoney": 13
       },
       "total": {
-        "overTicket": 52,
-        "underTicket": 48,
+        "overTicket": 43,
+        "underTicket": 57,
         "overMoney": 36,
         "underMoney": 64
       },
       "ml": {
-        "visitorTicket": 67,
-        "homeTicket": 33,
+        "visitorTicket": 68,
+        "homeTicket": 32,
         "visitorMoney": 65,
         "homeMoney": 35
       }
@@ -193,7 +193,7 @@
   },
   "10": {
     "id": 10,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
         "visitorTicket": 79,
@@ -204,8 +204,8 @@
       "total": {
         "overTicket": 68,
         "underTicket": 32,
-        "overMoney": 59,
-        "underMoney": 41
+        "overMoney": 58,
+        "underMoney": 42
       },
       "ml": {
         "visitorTicket": 87,
@@ -217,23 +217,23 @@
   },
   "9": {
     "id": 9,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
-        "visitorTicket": 77,
-        "homeTicket": 23,
+        "visitorTicket": 76,
+        "homeTicket": 24,
         "visitorMoney": 81,
         "homeMoney": 19
       },
       "total": {
-        "overTicket": 52,
-        "underTicket": 48,
+        "overTicket": 43,
+        "underTicket": 57,
         "overMoney": 82,
         "underMoney": 18
       },
       "ml": {
-        "visitorTicket": 84,
-        "homeTicket": 16,
+        "visitorTicket": 85,
+        "homeTicket": 15,
         "visitorMoney": 79,
         "homeMoney": 21
       }
@@ -241,17 +241,17 @@
   },
   "14": {
     "id": 14,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
-        "visitorTicket": 37,
-        "homeTicket": 63,
-        "visitorMoney": 48,
-        "homeMoney": 52
+        "visitorTicket": 36,
+        "homeTicket": 64,
+        "visitorMoney": 47,
+        "homeMoney": 53
       },
       "total": {
-        "overTicket": 65,
-        "underTicket": 35,
+        "overTicket": 56,
+        "underTicket": 44,
         "overMoney": 72,
         "underMoney": 28
       },
@@ -265,7 +265,7 @@
   },
   "15": {
     "id": 15,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
         "visitorTicket": 40,
@@ -274,34 +274,34 @@
         "homeMoney": 74
       },
       "total": {
-        "overTicket": 43,
-        "underTicket": 57,
+        "overTicket": 35,
+        "underTicket": 65,
         "overMoney": 83,
         "underMoney": 17
       },
       "ml": {
         "visitorTicket": 48,
         "homeTicket": 52,
-        "visitorMoney": 44,
-        "homeMoney": 56
+        "visitorMoney": 43,
+        "homeMoney": 57
       }
     }
   },
   "16": {
     "id": 16,
-    "updated_at": "2025-12-25 17:23:44",
+    "updated_at": "2025-12-25 18:37:45",
     "splits": {
       "ats": {
         "visitorTicket": 80,
         "homeTicket": 20,
-        "visitorMoney": 91,
-        "homeMoney": 9
+        "visitorMoney": 90,
+        "homeMoney": 10
       },
       "total": {
-        "overTicket": 69,
-        "underTicket": 31,
-        "overMoney": 89,
-        "underMoney": 11
+        "overTicket": 68,
+        "underTicket": 32,
+        "overMoney": 88,
+        "underMoney": 12
       },
       "ml": {
         "visitorTicket": 95,
