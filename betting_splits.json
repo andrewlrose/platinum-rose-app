@@ -1,19 +1,19 @@
 {
   "4": {
     "id": 4,
-    "updated_at": "2025-12-26 15:28:10",
+    "updated_at": "2025-12-26 16:32:04",
     "splits": {
       "ats": {
         "visitorTicket": 51,
         "homeTicket": 49,
-        "visitorMoney": 50,
-        "homeMoney": 50
+        "visitorMoney": 45,
+        "homeMoney": 55
       },
       "total": {
         "overTicket": 56,
         "underTicket": 44,
-        "overMoney": 74,
-        "underMoney": 26
+        "overMoney": 75,
+        "underMoney": 25
       },
       "ml": {
         "visitorTicket": 52,
@@ -25,7 +25,7 @@
   },
   "5": {
     "id": 5,
-    "updated_at": "2025-12-26 15:28:10",
+    "updated_at": "2025-12-26 16:32:04",
     "splits": {
       "ats": {
         "visitorTicket": 32,
@@ -36,8 +36,8 @@
       "total": {
         "overTicket": 48,
         "underTicket": 52,
-        "overMoney": 63,
-        "underMoney": 37
+        "overMoney": 65,
+        "underMoney": 35
       },
       "ml": {
         "visitorTicket": 31,
@@ -49,7 +49,7 @@
   },
   "6": {
     "id": 6,
-    "updated_at": "2025-12-26 15:28:10",
+    "updated_at": "2025-12-26 16:32:04",
     "splits": {
       "ats": {
         "visitorTicket": 27,
@@ -66,14 +66,14 @@
       "ml": {
         "visitorTicket": 9,
         "homeTicket": 91,
-        "visitorMoney": 60,
-        "homeMoney": 40
+        "visitorMoney": 61,
+        "homeMoney": 39
       }
     }
   },
   "8": {
     "id": 8,
-    "updated_at": "2025-12-26 15:28:10",
+    "updated_at": "2025-12-26 16:32:04",
     "splits": {
       "ats": {
         "visitorTicket": 83,
@@ -90,14 +90,14 @@
       "ml": {
         "visitorTicket": 88,
         "homeTicket": 12,
-        "visitorMoney": 63,
-        "homeMoney": 37
+        "visitorMoney": 64,
+        "homeMoney": 36
       }
     }
   },
   "11": {
     "id": 11,
-    "updated_at": "2025-12-26 15:28:10",
+    "updated_at": "2025-12-26 16:32:04",
     "splits": {
       "ats": {
         "visitorTicket": 73,
@@ -114,14 +114,14 @@
       "ml": {
         "visitorTicket": 67,
         "homeTicket": 33,
-        "visitorMoney": 63,
-        "homeMoney": 37
+        "visitorMoney": 65,
+        "homeMoney": 35
       }
     }
   },
   "10": {
     "id": 10,
-    "updated_at": "2025-12-26 15:28:10",
+    "updated_at": "2025-12-26 16:32:04",
     "splits": {
       "ats": {
         "visitorTicket": 77,
@@ -145,7 +145,7 @@
   },
   "9": {
     "id": 9,
-    "updated_at": "2025-12-26 15:28:10",
+    "updated_at": "2025-12-26 16:32:04",
     "splits": {
       "ats": {
         "visitorTicket": 76,
@@ -154,8 +154,8 @@
         "homeMoney": 20
       },
       "total": {
-        "overTicket": 42,
-        "underTicket": 58,
+        "overTicket": 43,
+        "underTicket": 57,
         "overMoney": 81,
         "underMoney": 19
       },
@@ -169,7 +169,7 @@
   },
   "14": {
     "id": 14,
-    "updated_at": "2025-12-26 15:28:10",
+    "updated_at": "2025-12-26 16:32:04",
     "splits": {
       "ats": {
         "visitorTicket": 36,
@@ -186,14 +186,14 @@
       "ml": {
         "visitorTicket": 40,
         "homeTicket": 60,
-        "visitorMoney": 43,
-        "homeMoney": 57
+        "visitorMoney": 42,
+        "homeMoney": 58
       }
     }
   },
   "15": {
     "id": 15,
-    "updated_at": "2025-12-26 15:28:10",
+    "updated_at": "2025-12-26 16:32:04",
     "splits": {
       "ats": {
         "visitorTicket": 41,
@@ -202,8 +202,8 @@
         "homeMoney": 74
       },
       "total": {
-        "overTicket": 34,
-        "underTicket": 66,
+        "overTicket": 35,
+        "underTicket": 65,
         "overMoney": 81,
         "underMoney": 19
       },
@@ -217,7 +217,7 @@
   },
   "16": {
     "id": 16,
-    "updated_at": "2025-12-26 15:28:10",
+    "updated_at": "2025-12-26 16:32:04",
     "splits": {
       "ats": {
         "visitorTicket": 81,
@@ -228,8 +228,8 @@
       "total": {
         "overTicket": 68,
         "underTicket": 32,
-        "overMoney": 86,
-        "underMoney": 14
+        "overMoney": 85,
+        "underMoney": 15
       },
       "ml": {
         "visitorTicket": 95,
