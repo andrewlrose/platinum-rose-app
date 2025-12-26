@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 // --- IMPORTS ---
-import { WEEK_17_SCHEDULE, INITIAL_EXPERTS } from './lib/constants';
+import { INITIAL_EXPERTS } from './lib/constants'; 
 import Header from './components/layout/Header';
 import Dashboard from './components/dashboard/Dashboard';
 import Standings from './components/dashboard/Standings';
@@ -53,27 +53,8 @@ const TEAM_ALIASES = {
     "commanders": "commanders", "washington": "commanders", "commies": "commanders"
 };
 
-// --- EMERGENCY BACKUP SCHEDULE ---
-const BACKUP_SCHEDULE = [
-    { id: 1, visitor: "Chiefs", home: "Steelers", time: "Wed 1:00 PM" },
-    { id: 2, visitor: "Ravens", home: "Texans", time: "Wed 4:30 PM" },
-    { id: 3, visitor: "Broncos", home: "Bengals", time: "Thu 8:15 PM" },
-    { id: 4, visitor: "Cardinals", home: "Rams", time: "Sun 1:00 PM" },
-    { id: 5, visitor: "Chargers", home: "Patriots", time: "Sun 1:00 PM" },
-    { id: 6, visitor: "Titans", home: "Jaguars", time: "Sun 1:00 PM" },
-    { id: 7, visitor: "Jets", home: "Bills", time: "Sun 1:00 PM" },
-    { id: 8, visitor: "Packers", home: "Vikings", time: "Sun 1:00 PM" },
-    { id: 9, visitor: "Raiders", home: "Saints", time: "Sun 1:00 PM" },
-    { id: 10, visitor: "Panthers", home: "Buccaneers", time: "Sun 1:00 PM" },
-    { id: 11, visitor: "Cowboys", home: "Eagles", time: "Sun 4:25 PM" },
-    { id: 12, visitor: "Giants", home: "Commanders", time: "Sun 4:25 PM" },
-    { id: 13, visitor: "49ers", home: "Lions", time: "Sun 4:25 PM" },
-    { id: 14, visitor: "Falcons", home: "Bears", time: "Sun 8:20 PM" },
-    { id: 15, visitor: "Browns", home: "Dolphins", time: "Mon 8:15 PM" },
-    { id: 16, visitor: "Seahawks", home: "Colts", time: "Mon 8:15 PM" }
-];
-
 function App() {
+  const [schedule, setSchedule] = useState([]); // 🔥 Dynamic Schedule State
   const [stats, setStats] = useState([]);
   const [splits, setSplits] = useState({}); 
   const [loading, setLoading] = useState(true);
@@ -96,32 +77,46 @@ function App() {
   const [expertConsensus, setExpertConsensus] = useState({}); 
   const [stagedPicks, setStagedPicks] = useState([]); 
 
-  // Determine which schedule to use
-  const ACTIVE_SCHEDULE = (WEEK_17_SCHEDULE && WEEK_17_SCHEDULE.length > 0) ? WEEK_17_SCHEDULE : BACKUP_SCHEDULE;
-
-  // --- DIAGNOSTIC STARTUP ---
+  // --- DYNAMIC DATA INGESTION ---
   useEffect(() => {
-    console.log("--- SCHEDULE DIAGNOSTICS ---");
-    if (!WEEK_17_SCHEDULE || WEEK_17_SCHEDULE.length === 0) {
-        console.warn("⚠️ IMPORTED SCHEDULE IS EMPTY. Switching to Backup.");
-        console.log("ACTIVE SCHEDULE (Backup):", BACKUP_SCHEDULE);
-    } else {
-        console.log(`✅ Using Imported Schedule (${WEEK_17_SCHEDULE.length} games)`);
-        console.log("ACTIVE SCHEDULE (Imported):", WEEK_17_SCHEDULE);
-    }
-    console.log("----------------------------");
-
+    console.log("🚀 Booting Up: Fetching Live Schedule & Stats...");
+    
     Promise.all([
-        fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-data/main/weekly_stats.json").then(r => r.json()),
-        fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-app/main/betting_splits.json").then(r => r.json()).catch(() => ({}))
-    ]).then(([statsData, splitsData]) => {
+        // 1. Fetch Schedule from public/schedule.json
+        fetch("./schedule.json")
+            .then(r => {
+                if (!r.ok) throw new Error("Missing schedule.json");
+                return r.json();
+            })
+            .catch(err => {
+                console.error("⚠️ SCHEDULE LOAD FAILED:", err);
+                return []; // Return empty array on fail to prevent crash
+            }),
+
+        // 2. Fetch Stats
+        fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-data/main/weekly_stats.json")
+            .then(r => r.json()),
+        
+        // 3. Fetch Splits
+        fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-app/main/betting_splits.json")
+            .then(r => r.json())
+            .catch(() => ({}))
+    ]).then(([scheduleData, statsData, splitsData]) => {
+        
+        if (scheduleData.length === 0) {
+            alert("CRITICAL: schedule.json is empty or missing. Please upload the schedule file.");
+        } else {
+            console.log(`✅ Schedule Ingested: ${scheduleData.length} games.`);
+        }
+
+        setSchedule(scheduleData);
         setStats(statsData);
         setSplits(splitsData || {});
         setLoading(false);
     }).catch(err => console.error("Error loading data:", err));
   }, []);
 
-  const gamesWithSplits = ACTIVE_SCHEDULE.map(game => {
+  const gamesWithSplits = schedule.map(game => {
       const gameData = splits[game.id] || splits[String(game.id)];
       const expertData = expertConsensus[game.id] || { expertPicks: { spread: [], total: [] } };
       return {
@@ -132,7 +127,7 @@ function App() {
       };
   });
 
-  // --- ROBUST MATCHER ---
+  // --- ROBUST MATCHER (Now uses Dynamic 'schedule') ---
   const findGameForTeam = (rawInput) => {
       if (!rawInput) return null;
       const clean = rawInput.toLowerCase().replace(/[^a-z0-9]/g, ""); 
@@ -141,7 +136,7 @@ function App() {
       for (const [alias, standard] of Object.entries(TEAM_ALIASES)) {
           if (clean.includes(alias)) {
                const standardClean = standard.toLowerCase();
-               return ACTIVE_SCHEDULE.find(g => {
+               return schedule.find(g => {
                     const h = g.home.toLowerCase().replace(/[^a-z0-9]/g, "");
                     const v = g.visitor.toLowerCase().replace(/[^a-z0-9]/g, "");
                     return h.includes(standardClean) || v.includes(standardClean);
@@ -150,14 +145,14 @@ function App() {
       }
 
       // 2. Fallback to raw match
-      return ACTIVE_SCHEDULE.find(g => {
+      return schedule.find(g => {
           const home = g.home.toLowerCase().replace(/[^a-z0-9]/g, "");
           const vis = g.visitor.toLowerCase().replace(/[^a-z0-9]/g, "");
           return home.includes(clean) || vis.includes(clean);
       });
   };
 
-  // --- AI LOGIC (WITH DEBUGGING) ---
+  // --- AI LOGIC ---
   const handleAIAnalyze = async (text, sourceData) => {
     try {
         console.log("Analyzing text...");
@@ -165,7 +160,7 @@ function App() {
         Analyze this transcript and extract NFL betting picks.
         Source: ${sourceData.name}
         Return JSON object with "picks" array. 
-        Each pick MUST have: "selection", "type", "line", "summary", "units".
+        Each pick MUST have: "selection", "type", "line", "summary", "units", "team1", "team2".
         Transcript: ${text.substring(0, 15000)}
         `;
 
@@ -186,35 +181,25 @@ function App() {
         let picks = content.picks || content;
         if (!Array.isArray(picks)) picks = [picks];
 
-        console.log("--- MATCHING PROCESS START ---");
         const processedPicks = picks.map(p => {
-            // 1. Normalize Keys
-            let rawSelection = p.selection || p.pick || p.team || p.bet || "Unknown";
-            
-            // 🔥 DEBUG LOGS
-            console.log(`🔎 Attempting to match: '${rawSelection}'`);
-
-            // 2. Try to Match
-            const game = findGameForTeam(rawSelection);
-            
-            if (game) {
-                console.log(`✅ MATCHED! Game ID: ${game.id} (${game.visitor} @ ${game.home})`);
-            } else {
-                console.error(`❌ FAILED TO MATCH: '${rawSelection}'. (Will be skipped on save)`);
+            // Normalize Selection
+            let searchString = p.selection;
+            if (p.selection === "Over" || p.selection === "Under") {
+                searchString = p.team1 || p.team2 || "Unknown";
             }
-
-            const displayName = game ? rawSelection : `${rawSelection} (Unmatched)`;
-
+            if (!searchString) searchString = p.pick || p.team || "Unknown";
+            
+            const game = findGameForTeam(searchString);
+            
             return {
                 ...p,
-                selection: displayName,
+                selection: p.selection,
                 gameId: game ? game.id : null,
                 expert: sourceData.name,
                 rationale: p.summary || p.rationale || p.analysis,
                 matched: !!game
             };
         });
-        console.log("--- MATCHING PROCESS END ---");
 
         setStagedPicks(processedPicks);
         setShowAudio(false);
@@ -239,7 +224,6 @@ function App() {
 
           if (!newConsensus[p.gameId]) newConsensus[p.gameId] = { expertPicks: { spread: [], total: [] } };
           
-          // Deep Copy
           const updatedGameData = {
               ...newConsensus[p.gameId],
               expertPicks: {
@@ -264,7 +248,7 @@ function App() {
       setStagedPicks([]);
       
       if (skippedCount > 0) {
-          alert(`Saved ${savedCount} picks.\n⚠️ Skipped ${skippedCount} picks because no game match was found. Check console (F12) for details.`);
+          alert(`Saved ${savedCount} picks.\n⚠️ Skipped ${skippedCount} picks because no game match was found.`);
       } else {
           alert(`Success! ${savedCount} picks added.`);
       }
@@ -298,7 +282,7 @@ function App() {
   };
   const handleBulkImport = (text) => { alert("Bulk Text received."); };
   const handleBet = (gameId, type, selection, line) => {
-    const game = ACTIVE_SCHEDULE.find(g => g.id === gameId);
+    const game = schedule.find(g => g.id === gameId);
     setMyBets([{ id: Date.now(), game: `${game.visitor} @ ${game.home}`, gameId, selection, type, line, odds: -110, status: 'OPEN' }, ...myBets]);
     setSelectedGame(null);
   };
@@ -314,7 +298,7 @@ function App() {
         {activeTab === 'dashboard' && <div className="animate-in fade-in zoom-in duration-300"><Dashboard schedule={gamesWithSplits} stats={stats} simResults={simResults} onGameClick={setSelectedGame} /></div>}
         {activeTab === 'standings' && <Standings experts={INITIAL_EXPERTS} />}
         {activeTab === 'mycard' && <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300"><MyCardModal bets={myBets} onRemoveBet={removeBet} onLockBets={handleLockBets} onClearCard={() => setMyBets([])} /></div>}
-        {activeTab === 'devlab' && <DevLab games={ACTIVE_SCHEDULE} stats={stats} savedResults={simResults} onSimComplete={setSimResults} />}
+        {activeTab === 'devlab' && <DevLab games={schedule} stats={stats} savedResults={simResults} onSimComplete={setSimResults} />}
       </main>
       <MatchupWizardModal isOpen={!!selectedGame} game={selectedGame} stats={stats} currentWizardData={selectedGame ? (expertConsensus[selectedGame.id] || null) : null} onClose={() => setSelectedGame(null)} onBet={(id, type, sel, line) => { handleBet(id, type, sel, line); setSelectedGame(null); }} />
       <PulseModal isOpen={showPulse} onClose={() => setShowPulse(false)} games={gamesWithSplits} />
