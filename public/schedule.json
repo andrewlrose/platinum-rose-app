@@ -1,98 +1,162 @@
 [
     {
-        "id": "401772622",
-        "visitor": "Denver Broncos",
-        "home": "Kansas City Chiefs",
-        "time": "Thu 8:15 PM"
-    },
-    {
         "id": "401772710",
-        "visitor": "Dallas Cowboys",
-        "home": "Washington Commanders",
-        "time": "Thu 1 PM"
+        "visitor": "DAL",
+        "home": "WSH",
+        "visitorName": "Dallas Cowboys",
+        "homeName": "Washington Commanders",
+        "time": "Thu 1 PM",
+        "spread": 0,
+        "total": 0
     },
     {
         "id": "401772711",
-        "visitor": "Detroit Lions",
-        "home": "Minnesota Vikings",
-        "time": "Thu 4:30 PM"
+        "visitor": "DET",
+        "home": "MIN",
+        "visitorName": "Detroit Lions",
+        "homeName": "Minnesota Vikings",
+        "time": "Thu 4:30 PM",
+        "spread": 0,
+        "total": 0
     },
     {
-        "id": "401772807",
-        "visitor": "Pittsburgh Steelers",
-        "home": "Cleveland Browns",
-        "time": "Sun 1 PM"
-    },
-    {
-        "id": "401772808",
-        "visitor": "New England Patriots",
-        "home": "New York Jets",
-        "time": "Sun 1 PM"
-    },
-    {
-        "id": "401772809",
-        "visitor": "New Orleans Saints",
-        "home": "Tennessee Titans",
-        "time": "Sun 1 PM"
-    },
-    {
-        "id": "401772825",
-        "visitor": "Los Angeles Rams",
-        "home": "Atlanta Falcons",
-        "time": "Mon 8:15 PM"
-    },
-    {
-        "id": "401772915",
-        "visitor": "Jacksonville Jaguars",
-        "home": "Indianapolis Colts",
-        "time": "Sun 1 PM"
-    },
-    {
-        "id": "401772916",
-        "visitor": "Tampa Bay Buccaneers",
-        "home": "Miami Dolphins",
-        "time": "Sun 1 PM"
-    },
-    {
-        "id": "401772917",
-        "visitor": "Philadelphia Eagles",
-        "home": "Buffalo Bills",
-        "time": "Sun 4:25 PM"
-    },
-    {
-        "id": "401772935",
-        "visitor": "Chicago Bears",
-        "home": "San Francisco 49ers",
-        "time": "Sun 8:20 PM"
-    },
-    {
-        "id": "401772950",
-        "visitor": "New York Giants",
-        "home": "Las Vegas Raiders",
-        "time": "Sun 4:05 PM"
+        "id": "401772622",
+        "visitor": "DEN",
+        "home": "KC",
+        "visitorName": "Denver Broncos",
+        "homeName": "Kansas City Chiefs",
+        "time": "Thu 8:15 PM",
+        "spread": 0,
+        "total": 0
     },
     {
         "id": "401772951",
-        "visitor": "Houston Texans",
-        "home": "Los Angeles Chargers",
-        "time": "Sat 4:30 PM"
-    },
-    {
-        "id": "401772952",
-        "visitor": "Seattle Seahawks",
-        "home": "Carolina Panthers",
-        "time": "Sun 1 PM"
+        "visitor": "HOU",
+        "home": "LAC",
+        "visitorName": "Houston Texans",
+        "homeName": "Los Angeles Chargers",
+        "time": "Sat 4:30 PM",
+        "spread": -1.5,
+        "total": 39.5
     },
     {
         "id": "401772953",
-        "visitor": "Baltimore Ravens",
-        "home": "Green Bay Packers",
-        "time": "Sat 8 PM"
+        "visitor": "BAL",
+        "home": "GB",
+        "visitorName": "Baltimore Ravens",
+        "homeName": "Green Bay Packers",
+        "time": "Sat 8 PM",
+        "spread": -4.5,
+        "total": 40.5
     },
     {
         "id": "401772954",
-        "visitor": "Arizona Cardinals",
-        "home": "Cincinnati Bengals",
-        "time": "Sun 1 PM"
+        "visitor": "ARI",
+        "home": "CIN",
+        "visitorName": "Arizona Cardinals",
+        "homeName": "Cincinnati Bengals",
+        "time": "Sun 1 PM",
+        "spread": -7.5,
+        "total": 52.5
+    },
+    {
+        "id": "401772807",
+        "visitor": "PIT",
+        "home": "CLE",
+        "visitorName": "Pittsburgh Steelers",
+        "homeName": "Cleveland Browns",
+        "time": "Sun 1 PM",
+        "spread": -3,
+        "total": 34.5
+    },
+    {
+        "id": "401772809",
+        "visitor": "NO",
+        "home": "TEN",
+        "visitorName": "New Orleans Saints",
+        "homeName": "Tennessee Titans",
+        "time": "Sun 1 PM",
+        "spread": -2.5,
+        "total": 39.5
+    },
+    {
+        "id": "401772915",
+        "visitor": "JAX",
+        "home": "IND",
+        "visitorName": "Jacksonville Jaguars",
+        "homeName": "Indianapolis Colts",
+        "time": "Sun 1 PM",
+        "spread": -6.5,
+        "total": 48.5
+    },
+    {
+        "id": "401772916",
+        "visitor": "TB",
+        "home": "MIA",
+        "visitorName": "Tampa Bay Buccaneers",
+        "homeName": "Miami Dolphins",
+        "time": "Sun 1 PM",
+        "spread": -6,
+        "total": 45.5
+    },
+    {
+        "id": "401772808",
+        "visitor": "NE",
+        "home": "NYJ",
+        "visitorName": "New England Patriots",
+        "homeName": "New York Jets",
+        "time": "Sun 1 PM",
+        "spread": -13.5,
+        "total": 42.5
+    },
+    {
+        "id": "401772952",
+        "visitor": "SEA",
+        "home": "CAR",
+        "visitorName": "Seattle Seahawks",
+        "homeName": "Carolina Panthers",
+        "time": "Sun 1 PM",
+        "spread": -7,
+        "total": 42.5
+    },
+    {
+        "id": "401772950",
+        "visitor": "NYG",
+        "home": "LV",
+        "visitorName": "New York Giants",
+        "homeName": "Las Vegas Raiders",
+        "time": "Sun 4:05 PM",
+        "spread": -1.5,
+        "total": 41.5
+    },
+    {
+        "id": "401772917",
+        "visitor": "PHI",
+        "home": "BUF",
+        "visitorName": "Philadelphia Eagles",
+        "homeName": "Buffalo Bills",
+        "time": "Sun 4:25 PM",
+        "spread": -1.5,
+        "total": 43.5
+    },
+    {
+        "id": "401772935",
+        "visitor": "CHI",
+        "home": "SF",
+        "visitorName": "Chicago Bears",
+        "homeName": "San Francisco 49ers",
+        "time": "Sun 8:20 PM",
+        "spread": -3,
+        "total": 52.5
+    },
+    {
+        "id": "401772825",
+        "visitor": "LAR",
+        "home": "ATL",
+        "visitorName": "Los Angeles Rams",
+        "homeName": "Atlanta Falcons",
+        "time": "Mon 8:15 PM",
+        "spread": -7.5,
+        "total": 49.5
     }
 ]
