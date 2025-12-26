@@ -1,0 +1,98 @@
+[
+    {
+        "id": "401772622",
+        "visitor": "Denver Broncos",
+        "home": "Kansas City Chiefs",
+        "time": "Thu 8:15 PM"
+    },
+    {
+        "id": "401772710",
+        "visitor": "Dallas Cowboys",
+        "home": "Washington Commanders",
+        "time": "Thu 1 PM"
+    },
+    {
+        "id": "401772711",
+        "visitor": "Detroit Lions",
+        "home": "Minnesota Vikings",
+        "time": "Thu 4:30 PM"
+    },
+    {
+        "id": "401772807",
+        "visitor": "Pittsburgh Steelers",
+        "home": "Cleveland Browns",
+        "time": "Sun 1 PM"
+    },
+    {
+        "id": "401772808",
+        "visitor": "New England Patriots",
+        "home": "New York Jets",
+        "time": "Sun 1 PM"
+    },
+    {
+        "id": "401772809",
+        "visitor": "New Orleans Saints",
+        "home": "Tennessee Titans",
+        "time": "Sun 1 PM"
+    },
+    {
+        "id": "401772825",
+        "visitor": "Los Angeles Rams",
+        "home": "Atlanta Falcons",
+        "time": "Mon 8:15 PM"
+    },
+    {
+        "id": "401772915",
+        "visitor": "Jacksonville Jaguars",
+        "home": "Indianapolis Colts",
+        "time": "Sun 1 PM"
+    },
+    {
+        "id": "401772916",
+        "visitor": "Tampa Bay Buccaneers",
+        "home": "Miami Dolphins",
+        "time": "Sun 1 PM"
+    },
+    {
+        "id": "401772917",
+        "visitor": "Philadelphia Eagles",
+        "home": "Buffalo Bills",
+        "time": "Sun 4:25 PM"
+    },
+    {
+        "id": "401772935",
+        "visitor": "Chicago Bears",
+        "home": "San Francisco 49ers",
+        "time": "Sun 8:20 PM"
+    },
+    {
+        "id": "401772950",
+        "visitor": "New York Giants",
+        "home": "Las Vegas Raiders",
+        "time": "Sun 4:05 PM"
+    },
+    {
+        "id": "401772951",
+        "visitor": "Houston Texans",
+        "home": "Los Angeles Chargers",
+        "time": "Sat 4:30 PM"
+    },
+    {
+        "id": "401772952",
+        "visitor": "Seattle Seahawks",
+        "home": "Carolina Panthers",
+        "time": "Sun 1 PM"
+    },
+    {
+        "id": "401772953",
+        "visitor": "Baltimore Ravens",
+        "home": "Green Bay Packers",
+        "time": "Sat 8 PM"
+    },
+    {
+        "id": "401772954",
+        "visitor": "Arizona Cardinals",
+        "home": "Cincinnati Bengals",
+        "time": "Sun 1 PM"
+    }
+]
