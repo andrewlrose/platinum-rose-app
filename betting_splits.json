@@ -1,7 +1,7 @@
 {
   "6": {
     "id": 6,
-    "updated_at": "2026-01-02 09:31:31",
+    "updated_at": "2026-01-02 10:28:45",
     "splits": {
       "ats": {
         "visitorTicket": 52,
@@ -25,7 +25,7 @@
   },
   "2": {
     "id": 2,
-    "updated_at": "2026-01-02 09:31:31",
+    "updated_at": "2026-01-02 10:28:45",
     "splits": {
       "ats": {
         "visitorTicket": 67,
@@ -49,7 +49,7 @@
   },
   "4": {
     "id": 4,
-    "updated_at": "2026-01-02 09:31:31",
+    "updated_at": "2026-01-02 10:28:45",
     "splits": {
       "ats": {
         "visitorTicket": 45,
@@ -73,7 +73,7 @@
   },
   "7": {
     "id": 7,
-    "updated_at": "2026-01-02 09:31:31",
+    "updated_at": "2026-01-02 10:28:45",
     "splits": {
       "ats": {
         "visitorTicket": 47,
@@ -82,8 +82,8 @@
         "homeMoney": 82
       },
       "total": {
-        "overTicket": 59,
-        "underTicket": 41,
+        "overTicket": 58,
+        "underTicket": 42,
         "overMoney": 39,
         "underMoney": 61
       },
@@ -97,7 +97,7 @@
   },
   "1": {
     "id": 1,
-    "updated_at": "2026-01-02 09:31:31",
+    "updated_at": "2026-01-02 10:28:45",
     "splits": {
       "ats": {
         "visitorTicket": 70,
@@ -121,7 +121,7 @@
   },
   "11": {
     "id": 11,
-    "updated_at": "2026-01-02 09:31:31",
+    "updated_at": "2026-01-02 10:28:45",
     "splits": {
       "ats": {
         "visitorTicket": 41,
@@ -130,8 +130,8 @@
         "homeMoney": 54
       },
       "total": {
-        "overTicket": 73,
-        "underTicket": 27,
+        "overTicket": 72,
+        "underTicket": 28,
         "overMoney": 79,
         "underMoney": 21
       },
@@ -145,7 +145,7 @@
   },
   "9": {
     "id": 9,
-    "updated_at": "2026-01-02 09:31:31",
+    "updated_at": "2026-01-02 10:28:45",
     "splits": {
       "ats": {
         "visitorTicket": 45,
@@ -169,7 +169,7 @@
   },
   "10": {
     "id": 10,
-    "updated_at": "2026-01-02 09:31:31",
+    "updated_at": "2026-01-02 10:28:45",
     "splits": {
       "ats": {
         "visitorTicket": 41,
@@ -193,7 +193,7 @@
   },
   "3": {
     "id": 3,
-    "updated_at": "2026-01-02 09:31:31",
+    "updated_at": "2026-01-02 10:28:45",
     "splits": {
       "ats": {
         "visitorTicket": 54,
@@ -217,7 +217,7 @@
   },
   "5": {
     "id": 5,
-    "updated_at": "2026-01-02 09:31:31",
+    "updated_at": "2026-01-02 10:28:45",
     "splits": {
       "ats": {
         "visitorTicket": 44,
