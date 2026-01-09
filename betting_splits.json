@@ -1,13 +1,13 @@
 {
   "6": {
     "id": 6,
-    "updated_at": "2026-01-09 13:45:13",
+    "updated_at": "2026-01-09 14:30:45",
     "splits": {
       "ats": {
         "visitorTicket": 38,
         "homeTicket": 62,
-        "visitorMoney": 51,
-        "homeMoney": 49
+        "visitorMoney": 50,
+        "homeMoney": 50
       },
       "total": {
         "overTicket": 61,
@@ -18,14 +18,14 @@
       "ml": {
         "visitorTicket": 82,
         "homeTicket": 18,
-        "visitorMoney": 70,
-        "homeMoney": 30
+        "visitorMoney": 69,
+        "homeMoney": 31
       }
     }
   },
   "5": {
     "id": 5,
-    "updated_at": "2026-01-09 13:45:13",
+    "updated_at": "2026-01-09 14:30:45",
     "splits": {
       "ats": {
         "visitorTicket": 30,
@@ -49,11 +49,11 @@
   },
   "9": {
     "id": 9,
-    "updated_at": "2026-01-09 13:45:13",
+    "updated_at": "2026-01-09 14:30:45",
     "splits": {
       "ats": {
-        "visitorTicket": 51,
-        "homeTicket": 49,
+        "visitorTicket": 50,
+        "homeTicket": 50,
         "visitorMoney": 48,
         "homeMoney": 52
       },
@@ -73,7 +73,7 @@
   },
   "14": {
     "id": 14,
-    "updated_at": "2026-01-09 13:45:13",
+    "updated_at": "2026-01-09 14:30:45",
     "splits": {
       "ats": {
         "visitorTicket": 65,
@@ -84,26 +84,26 @@
       "total": {
         "overTicket": 45,
         "underTicket": 55,
-        "overMoney": 31,
-        "underMoney": 69
+        "overMoney": 30,
+        "underMoney": 70
       },
       "ml": {
         "visitorTicket": 45,
         "homeTicket": 55,
-        "visitorMoney": 56,
-        "homeMoney": 44
+        "visitorMoney": 55,
+        "homeMoney": 45
       }
     }
   },
   "4": {
     "id": 4,
-    "updated_at": "2026-01-09 13:45:13",
+    "updated_at": "2026-01-09 14:30:45",
     "splits": {
       "ats": {
         "visitorTicket": 36,
         "homeTicket": 64,
-        "visitorMoney": 49,
-        "homeMoney": 51
+        "visitorMoney": 48,
+        "homeMoney": 52
       },
       "total": {
         "overTicket": 49,
