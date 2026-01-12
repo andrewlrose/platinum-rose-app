@@ -1,7 +1,7 @@
 {
   "9": {
     "id": 9,
-    "updated_at": "2026-01-12 11:27:19",
+    "updated_at": "2026-01-12 13:01:22",
     "splits": {
       "ats": {
         "visitorTicket": 54,
@@ -25,7 +25,7 @@
   },
   "14": {
     "id": 14,
-    "updated_at": "2026-01-12 11:27:19",
+    "updated_at": "2026-01-12 13:01:22",
     "splits": {
       "ats": {
         "visitorTicket": 66,
@@ -49,7 +49,7 @@
   },
   "4": {
     "id": 4,
-    "updated_at": "2026-01-12 11:27:19",
+    "updated_at": "2026-01-12 13:01:22",
     "splits": {
       "ats": {
         "visitorTicket": 35,
@@ -68,6 +68,78 @@
         "homeTicket": 76,
         "visitorMoney": 33,
         "homeMoney": 67
+      }
+    }
+  },
+  "6": {
+    "id": 6,
+    "updated_at": "2026-01-12 13:01:22",
+    "splits": {
+      "ats": {
+        "visitorTicket": 61,
+        "homeTicket": 39,
+        "visitorMoney": 36,
+        "homeMoney": 64
+      },
+      "total": {
+        "overTicket": 19,
+        "underTicket": 81,
+        "overMoney": 16,
+        "underMoney": 84
+      },
+      "ml": {
+        "visitorTicket": 51,
+        "homeTicket": 49,
+        "visitorMoney": 63,
+        "homeMoney": 37
+      }
+    }
+  },
+  "3": {
+    "id": 3,
+    "updated_at": "2026-01-12 13:01:22",
+    "splits": {
+      "ats": {
+        "visitorTicket": 55,
+        "homeTicket": 45,
+        "visitorMoney": 70,
+        "homeMoney": 30
+      },
+      "total": {
+        "overTicket": 44,
+        "underTicket": 56,
+        "overMoney": 82,
+        "underMoney": 18
+      },
+      "ml": {
+        "visitorTicket": 62,
+        "homeTicket": 38,
+        "visitorMoney": 83,
+        "homeMoney": 17
+      }
+    }
+  },
+  "15": {
+    "id": 15,
+    "updated_at": "2026-01-12 13:01:22",
+    "splits": {
+      "ats": {
+        "visitorTicket": 24,
+        "homeTicket": 76,
+        "visitorMoney": 19,
+        "homeMoney": 81
+      },
+      "total": {
+        "overTicket": 59,
+        "underTicket": 41,
+        "overMoney": 52,
+        "underMoney": 48
+      },
+      "ml": {
+        "visitorTicket": 43,
+        "homeTicket": 57,
+        "visitorMoney": 22,
+        "homeMoney": 78
       }
     }
   }
