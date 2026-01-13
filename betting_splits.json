@@ -1,7 +1,7 @@
 {
   "3": {
     "id": 3,
-    "updated_at": "2026-01-13 16:40:18",
+    "updated_at": "2026-01-13 17:32:41",
     "splits": {
       "ats": {
         "visitorTicket": 60,
@@ -10,14 +10,14 @@
         "homeMoney": 39
       },
       "total": {
-        "overTicket": 52,
-        "underTicket": 48,
-        "overMoney": 54,
-        "underMoney": 46
+        "overTicket": 53,
+        "underTicket": 47,
+        "overMoney": 55,
+        "underMoney": 45
       },
       "ml": {
-        "visitorTicket": 61,
-        "homeTicket": 39,
+        "visitorTicket": 62,
+        "homeTicket": 38,
         "visitorMoney": 66,
         "homeMoney": 34
       }
@@ -25,13 +25,13 @@
   },
   "6": {
     "id": 6,
-    "updated_at": "2026-01-13 16:40:18",
+    "updated_at": "2026-01-13 17:32:41",
     "splits": {
       "ats": {
         "visitorTicket": 75,
         "homeTicket": 25,
-        "visitorMoney": 61,
-        "homeMoney": 39
+        "visitorMoney": 60,
+        "homeMoney": 40
       },
       "total": {
         "overTicket": 35,
@@ -42,20 +42,20 @@
       "ml": {
         "visitorTicket": 46,
         "homeTicket": 54,
-        "visitorMoney": 57,
-        "homeMoney": 43
+        "visitorMoney": 58,
+        "homeMoney": 42
       }
     }
   },
   "4": {
     "id": 4,
-    "updated_at": "2026-01-13 16:40:18",
+    "updated_at": "2026-01-13 17:32:41",
     "splits": {
       "ats": {
         "visitorTicket": 42,
         "homeTicket": 58,
-        "visitorMoney": 24,
-        "homeMoney": 76
+        "visitorMoney": 22,
+        "homeMoney": 78
       },
       "total": {
         "overTicket": 20,
@@ -73,7 +73,7 @@
   },
   "15": {
     "id": 15,
-    "updated_at": "2026-01-13 16:40:18",
+    "updated_at": "2026-01-13 17:32:41",
     "splits": {
       "ats": {
         "visitorTicket": 37,
@@ -84,8 +84,8 @@
       "total": {
         "overTicket": 57,
         "underTicket": 43,
-        "overMoney": 41,
-        "underMoney": 59
+        "overMoney": 42,
+        "underMoney": 58
       },
       "ml": {
         "visitorTicket": 51,
