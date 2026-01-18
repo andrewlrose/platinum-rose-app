@@ -1,7 +1,7 @@
 {
   "4": {
     "id": 4,
-    "updated_at": "2026-01-18 21:24:51",
+    "updated_at": "2026-01-18 22:26:28",
     "splits": {
       "ats": {
         "visitorTicket": 39,
@@ -25,7 +25,7 @@
   },
   "15": {
     "id": 15,
-    "updated_at": "2026-01-18 21:24:51",
+    "updated_at": "2026-01-18 22:26:28",
     "splits": {
       "ats": {
         "visitorTicket": 40,
@@ -36,14 +36,14 @@
       "total": {
         "overTicket": 58,
         "underTicket": 42,
-        "overMoney": 52,
-        "underMoney": 48
+        "overMoney": 54,
+        "underMoney": 46
       },
       "ml": {
-        "visitorTicket": 49,
-        "homeTicket": 51,
-        "visitorMoney": 33,
-        "homeMoney": 67
+        "visitorTicket": 48,
+        "homeTicket": 52,
+        "visitorMoney": 32,
+        "homeMoney": 68
       }
     }
   }
