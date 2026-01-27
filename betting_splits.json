@@ -1,19 +1,25 @@
 {
-  "401999999": {
-    "gameId": "401999999",
-    "summary": "Super Bowl LX: Seahawks vs Patriots",
+  "6": {
+    "id": 6,
+    "updated_at": "2026-01-27 02:24:56",
     "splits": {
-      "spread": {
-        "visitor": { "bets": 65, "money": 55 },
-        "home": { "bets": 35, "money": 45 }
+      "ats": {
+        "visitorTicket": 75,
+        "homeTicket": 25,
+        "visitorMoney": 80,
+        "homeMoney": 20
       },
       "total": {
-        "over": { "bets": 72, "money": 68 },
-        "under": { "bets": 28, "money": 32 }
+        "overTicket": 60,
+        "underTicket": 40,
+        "overMoney": 62,
+        "underMoney": 38
       },
-      "moneyline": {
-        "visitor": { "bets": 50, "money": 48 },
-        "home": { "bets": 50, "money": 52 }
+      "ml": {
+        "visitorTicket": 43,
+        "homeTicket": 57,
+        "visitorMoney": 55,
+        "homeMoney": 45
       }
     }
   }
