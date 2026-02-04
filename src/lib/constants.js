@@ -6,6 +6,10 @@ export const CURRENT_WEEK = 17;
 // We only need this one so your "My Card" saves to your browser
 export const STORAGE_KEY_BETS = 'platinum_rose_bets_v17'; 
 
+// --- EXPERTS ---
+// Re-export from unified experts.js for backward compatibility
+export { INITIAL_EXPERTS, EXPERTS, findExpert } from './experts.js';
+
 // --- SCHEDULE ---
 // This drives the Dashboard Grid
 // --- SCHEDULE (2025 REAL WEEK 17) ---
@@ -36,33 +40,4 @@ export const WEEK_17_SCHEDULE = [
   { id: 16, home: 'ATL', visitor: 'LAR', spread: -3.0, total: 48.0, time: 'Mon 8:15 PM' }
 ];
 
-// --- EXPERTS LIBRARY ---
-// Used for the Expert Tracker features
-export const INITIAL_EXPERTS = [
-  // --- 🎙️ SHOWS / SOURCES ---
-  { id: 1, name: "Sharp or Square", source: "Sharp or Square", record: "0-0", lastWeek: "0-0" },
-  { id: 2, name: "Even Money", source: "Even Money", record: "0-0", lastWeek: "0-0" },
-  { id: 3, name: "Sunday Sixpack", source: "Sunday Sixpack", record: "0-0", lastWeek: "0-0" },
-  { id: 4, name: "The Favorites", source: "The Favorites", record: "0-0", lastWeek: "0-0" },
-  { id: 5, name: "Lock n Cash", source: "Lock n Cash", record: "0-0", lastWeek: "0-0" },
-  { id: 6, name: "Betting Primer", source: "Betting Primer", record: "0-0", lastWeek: "0-0" },
-  { id: 7, name: "Warren Sharp", source: "Warren Sharp", record: "0-0", lastWeek: "0-0" },
-  { id: 8, name: "Walter Football", source: "Walter Football", record: "0-0", lastWeek: "0-0" },
-  { id: 9, name: "Hitman", source: "Hitman", record: "0-0", lastWeek: "0-0" },
-  { id: 10, name: "Tuley's Takes", source: "Tuley's Takes", record: "0-0", lastWeek: "0-0" },
-
-  // --- 👤 SPECIFIC HOSTS ---
-  { id: 11, name: "Chad Millman", source: "Sharp or Square", record: "0-0", lastWeek: "0-0" },
-  { id: 12, name: "Simon Hunter", source: "Sharp or Square", record: "0-0", lastWeek: "0-0" },
-  { id: 13, name: "Ross Tucker", source: "Even Money", record: "0-0", lastWeek: "0-0" },
-  { id: 14, name: "Steve Fezzick", source: "Even Money", record: "0-0", lastWeek: "0-0" },
-  { id: 15, name: "Chris Raybon", source: "Sunday Sixpack", record: "0-0", lastWeek: "0-0" },
-  { id: 16, name: "Stuckey", source: "Sunday Sixpack", record: "0-0", lastWeek: "0-0" },
-  { id: 17, name: "Chad Millman (Fav)", source: "The Favorites", record: "0-0", lastWeek: "0-0" },
-  { id: 18, name: "Simon Hunter (Fav)", source: "The Favorites", record: "0-0", lastWeek: "0-0" },
-  { id: 19, name: "Evan Abrams", source: "Betting Primer", record: "0-0", lastWeek: "0-0" },
-  { id: 20, name: "Dave Tuley", source: "Tuley's Takes", record: "0-0", lastWeek: "0-0" },
-  { id: 21, name: "Warren Sharp", source: "Warren Sharp", record: "0-0", lastWeek: "0-0" },
-  { id: 22, name: "Walter Football", source: "Walter Football", record: "0-0", lastWeek: "0-0" },
-  { id: 23, name: "Hitman", source: "Hitman", record: "0-0", lastWeek: "0-0" }
-];
+// Note: INITIAL_EXPERTS is now defined in experts.js and re-exported above

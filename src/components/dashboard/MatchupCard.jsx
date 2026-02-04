@@ -3,8 +3,10 @@ import React, { useState, useRef, useEffect } from 'react';
 import { 
   TrendingUp, Activity, Trophy, ExternalLink, List, Calculator, Cloud, 
   Sun, Umbrella, Snowflake, Wind, ChevronRight, X, Thermometer, Split, 
-  User, CheckCircle, AlertTriangle 
+  User, CheckCircle, AlertTriangle, DollarSign
 } from 'lucide-react';
+import { InjurySummary, InjuryImpactIcon } from '../ui/InjuryBadge';
+import { getTopInjuries } from '../../lib/injuries';
 
 // 🔥 FIXED: Expanded Logo Map to include Abbreviations (ARI, ATL, etc.)
 const TEAM_LOGOS = {
@@ -54,7 +56,7 @@ const getAbbr = (name) => {
 };
 const STADIUM_DATA = { "Cardinals": { type: "Dome", lat: 33.5276, long: -112.2626 }, "Arizona": { type: "Dome", lat: 33.5276, long: -112.2626 }, "Falcons": { type: "Dome", lat: 33.7554, long: -84.4010 }, "Atlanta": { type: "Dome", lat: 33.7554, long: -84.4010 }, "Ravens": { type: "Open", lat: 39.2780, long: -76.6227 }, "Baltimore": { type: "Open", lat: 39.2780, long: -76.6227 }, "Bills": { type: "Open", lat: 42.7738, long: -78.7870 }, "Buffalo": { type: "Open", lat: 42.7738, long: -78.7870 }, "Panthers": { type: "Open", lat: 35.2258, long: -80.8528 }, "Carolina": { type: "Open", lat: 35.2258, long: -80.8528 }, "Bears": { type: "Open", lat: 41.8623, long: -87.6167 }, "Chicago": { type: "Open", lat: 41.8623, long: -87.6167 }, "Bengals": { type: "Open", lat: 39.0955, long: -84.5161 }, "Cincinnati": { type: "Open", lat: 39.0955, long: -84.5161 }, "Browns": { type: "Open", lat: 41.5061, long: -81.6995 }, "Cleveland": { type: "Open", lat: 41.5061, long: -81.6995 }, "Cowboys": { type: "Dome", lat: 32.7473, long: -97.0945 }, "Dallas": { type: "Dome", lat: 32.7473, long: -97.0945 }, "Broncos": { type: "Open", lat: 39.7439, long: -105.0201 }, "Denver": { type: "Open", lat: 39.7439, long: -105.0201 }, "Lions": { type: "Dome", lat: 42.3400, long: -83.0456 }, "Detroit": { type: "Dome", lat: 42.3400, long: -83.0456 }, "Packers": { type: "Open", lat: 44.5013, long: -88.0622 }, "Green Bay": { type: "Open", lat: 44.5013, long: -88.0622 }, "Texans": { type: "Dome", lat: 29.6847, long: -95.4107 }, "Houston": { type: "Dome", lat: 29.6847, long: -95.4107 }, "Colts": { type: "Dome", lat: 39.7601, long: -86.1639 }, "Indianapolis": { type: "Dome", lat: 39.7601, long: -86.1639 }, "Jaguars": { type: "Open", lat: 30.3240, long: -81.6373 }, "Jacksonville": { type: "Open", lat: 30.3240, long: -81.6373 }, "Chiefs": { type: "Open", lat: 39.0489, long: -94.4839 }, "Kansas City": { type: "Open", lat: 39.0489, long: -94.4839 }, "Raiders": { type: "Dome", lat: 36.0909, long: -115.1833 }, "Las Vegas": { type: "Dome", lat: 36.0909, long: -115.1833 }, "Chargers": { type: "Dome", lat: 33.9534, long: -118.3390 }, "Los Angeles": { type: "Dome", lat: 33.9534, long: -118.3390 }, "Rams": { type: "Dome", lat: 33.9534, long: -118.3390 }, "Dolphins": { type: "Open", lat: 25.9580, long: -80.2389 }, "Miami": { type: "Open", lat: 25.9580, long: -80.2389 }, "Vikings": { type: "Dome", lat: 44.9735, long: -93.2575 }, "Minnesota": { type: "Dome", lat: 44.9735, long: -93.2575 }, "Patriots": { type: "Open", lat: 42.0909, long: -71.2643 }, "New England": { type: "Open", lat: 42.0909, long: -71.2643 }, "Saints": { type: "Dome", lat: 29.9511, long: -90.0812 }, "New Orleans": { type: "Dome", lat: 29.9511, long: -90.0812 }, "Giants": { type: "Open", lat: 40.8135, long: -74.0745 }, "New York": { type: "Open", lat: 40.8135, long: -74.0745 }, "Jets": { type: "Open", lat: 40.8135, long: -74.0745 }, "Eagles": { type: "Open", lat: 39.9008, long: -75.1675 }, "Philadelphia": { type: "Open", lat: 39.9008, long: -75.1675 }, "Steelers": { type: "Open", lat: 40.4468, long: -80.0158 }, "Pittsburgh": { type: "Open", lat: 40.4468, long: -80.0158 }, "49ers": { type: "Open", lat: 37.4014, long: -121.9695 }, "San Francisco": { type: "Open", lat: 37.4014, long: -121.9695 }, "Seahawks": { type: "Open", lat: 47.5952, long: -122.3316 }, "Seattle": { type: "Open", lat: 47.5952, long: -122.3316 }, "Buccaneers": { type: "Open", lat: 27.9759, long: -82.5033 }, "Tampa Bay": { type: "Open", lat: 27.9759, long: -82.5033 }, "Titans": { type: "Open", lat: 36.1665, long: -86.7713 }, "Tennessee": { type: "Open", lat: 36.1665, long: -86.7713 }, "Commanders": { type: "Open", lat: 38.9076, long: -76.8645 }, "Washington": { type: "Open", lat: 38.9076, long: -76.8645 } };
 
-const MatchupCard = ({ game, onPlaceBet, onShowHistory, onAnalyze, experts, myBets = [], simData }) => {
+const MatchupCard = ({ game, onPlaceBet, onShowHistory, onAnalyze, onShowInjuries, onAddBankrollBet, experts, myBets = [], simData }) => {
   const [showPicks, setShowPicks] = useState(false);
   const [showMoneyline, setShowMoneyline] = useState(false);
 
@@ -359,6 +361,15 @@ const MatchupCard = ({ game, onPlaceBet, onShowHistory, onAnalyze, experts, myBe
             <div>
                 <div className="font-black text-lg text-white leading-none tracking-tight">{game.visitor}</div>
                 <div className="text-[10px] text-slate-500 font-mono mt-1">{game.visitorRecord || '(0-0)'}</div>
+                {/* Injury Summary */}
+                <div className="mt-1">
+                    <InjurySummary 
+                        injuries={getTopInjuries(game.injuries?.visitor || [], 2)}
+                        teamAbbrev={game.visitor}
+                        maxDisplay={2}
+                        onClick={onShowInjuries}
+                    />
+                </div>
             </div>
             <button onClick={() => onPlaceBet(game.id, 'moneyline', 'visitor', game.visitor_ml)} className={`mt-1 px-3 py-1 rounded-full text-[10px] transition-all font-bold border ${isSelected('moneyline', 'visitor') ? 'bg-emerald-900/20 text-emerald-300 border-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]' : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-white'}`}>
                 ML {formatLine(game.visitor_ml)}
@@ -392,6 +403,15 @@ const MatchupCard = ({ game, onPlaceBet, onShowHistory, onAnalyze, experts, myBe
             <div>
                 <div className="font-black text-lg text-white leading-none tracking-tight">{game.home}</div>
                 <div className="text-[10px] text-slate-500 font-mono mt-1">{game.homeRecord || '(0-0)'}</div>
+                {/* Injury Summary */}
+                <div className="mt-1">
+                    <InjurySummary 
+                        injuries={getTopInjuries(game.injuries?.home || [], 2)}
+                        teamAbbrev={game.home}
+                        maxDisplay={2}
+                        onClick={onShowInjuries}
+                    />
+                </div>
             </div>
             <button onClick={() => onPlaceBet(game.id, 'moneyline', 'home', game.home_ml)} className={`mt-1 px-3 py-1 rounded-full text-[10px] transition-all font-bold border ${isSelected('moneyline', 'home') ? 'bg-emerald-900/20 text-emerald-300 border-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.5)]' : 'bg-slate-900/80 border-slate-800 text-slate-400 hover:text-white'}`}>
                 ML {formatLine(game.home_ml)}
@@ -459,7 +479,18 @@ const MatchupCard = ({ game, onPlaceBet, onShowHistory, onAnalyze, experts, myBe
             ) : (
                 <button onClick={() => onShowHistory(game)} className="flex items-center gap-1 text-slate-500 hover:text-white transition-colors text-xs"><Activity size={14} /> <span className="font-medium">Line History</span></button>
             )}
-            <button onClick={() => onAnalyze(game)} className="flex items-center gap-2 px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition-all text-xs font-bold border border-slate-700"><Trophy size={12} className="text-amber-500" /> Analyze Matchup</button>
+            <div className="flex gap-2">
+                {onAddBankrollBet && (
+                    <button 
+                        onClick={() => onAddBankrollBet(game)} 
+                        className="flex items-center gap-2 px-3 py-1.5 rounded bg-emerald-800 hover:bg-emerald-700 text-white transition-all text-xs font-bold border border-emerald-600"
+                    >
+                        <DollarSign size={12} /> 
+                        Bankroll
+                    </button>
+                )}
+                <button onClick={() => onAnalyze(game)} className="flex items-center gap-2 px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white transition-all text-xs font-bold border border-slate-700"><Trophy size={12} className="text-amber-500" /> Analyze Matchup</button>
+            </div>
       </div>
     </div>
   );

@@ -122,7 +122,7 @@ export default function PulseModal({ isOpen, onClose, games = [] }) {
             {/* COL 2: SHARP MONEY */}
             <div className="bg-emerald-900/10 border border-emerald-500/20 rounded-xl p-5">
                 <h3 className="text-emerald-400 font-bold flex items-center gap-2 mb-4 uppercase tracking-wider text-xs">
-                    <TrendingUp size={16} /> Sharp Money (>15% Diff)
+                    <TrendingUp size={16} /> Sharp Money (&gt;15% Diff)
                 </h3>
                 {sharps.length === 0 ? <p className="text-slate-500 text-xs italic">No sharp discrepancies.</p> : (
                     <ul className="space-y-3">
@@ -150,7 +150,7 @@ export default function PulseModal({ isOpen, onClose, games = [] }) {
             <div className="space-y-6">
                 <div className="bg-blue-900/10 border border-blue-500/20 rounded-xl p-5">
                     <h3 className="text-blue-400 font-bold flex items-center gap-2 mb-4 uppercase tracking-wider text-xs">
-                        <Users size={16} /> Public Heavy (>75%)
+                        <Users size={16} /> Public Heavy (&gt;75%)
                     </h3>
                     {publicFade.length === 0 ? <p className="text-slate-500 text-xs italic">Public is split.</p> : (
                         <ul className="space-y-3">

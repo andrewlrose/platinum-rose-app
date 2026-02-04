@@ -1,4 +1,7 @@
 // File: src/lib/simulation.js
+// Uses unified team database from teams.js
+
+import { ABBREV_TO_TEAM, normalizeTeam } from './teams.js';
 
 // 1. Math Helper: Box-Muller Transform
 function boxMullerRandom() {
@@ -117,17 +120,9 @@ export const runSimulation = (game, ratings, iterations = 10000) => {
 
     const findRating = (key) => {
         if (ratings[key]) return ratings[key];
-        const aliases = {
-            'gb': 'packers', 'no': 'saints', 'ne': 'patriots', 'lv': 'raiders', 
-            'kc': 'chiefs', 'sf': '49ers', 'tb': 'buccaneers', 'jax': 'jaguars',
-            'wsh': 'commanders', 'was': 'commanders', 'ten': 'titans', 'ari': 'cardinals',
-            'lac': 'chargers', 'lar': 'rams', 'hou': 'texans', 'ind': 'colts',
-            'chi': 'bears', 'cle': 'browns', 'bal': 'ravens', 'buf': 'bills',
-            'mia': 'dolphins', 'phi': 'eagles', 'atl': 'falcons', 'car': 'panthers',
-            'cin': 'bengals', 'nyg': 'giants', 'nyj': 'jets', 'det': 'lions',
-            'min': 'vikings', 'dal': 'cowboys', 'den': 'broncos', 'sea': 'seahawks', 'pit': 'steelers'
-        };
-        for (const [abbr, full] of Object.entries(aliases)) {
+        
+        // Use unified abbreviation lookup from teams.js
+        for (const [abbr, full] of Object.entries(ABBREV_TO_TEAM)) {
             if ((key.includes(full) || key.includes(abbr)) && (ratings[abbr] || ratings[full])) {
                 return ratings[abbr] || ratings[full];
             }

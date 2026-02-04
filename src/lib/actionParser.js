@@ -1,39 +1,7 @@
 // src/lib/actionParser.js
+// Uses unified team database from teams.js
 
-const NAME_MAP = {
-    "Falcons": "Falcons", "Atlanta Falcons": "Falcons",
-    "Buccaneers": "Buccaneers", "Tampa Bay Buccaneers": "Buccaneers",
-    "Chargers": "Chargers", "Los Angeles Chargers": "Chargers",
-    "Chiefs": "Chiefs", "Kansas City Chiefs": "Chiefs",
-    "Raiders": "Raiders", "Las Vegas Raiders": "Raiders",
-    "Eagles": "Eagles", "Philadelphia Eagles": "Eagles",
-    "Dolphins": "Dolphins", "Miami Dolphins": "Dolphins",
-    "Steelers": "Steelers", "Pittsburgh Steelers": "Steelers",
-    "Bills": "Bills", "Buffalo Bills": "Bills",
-    "Patriots": "Patriots", "New England Patriots": "Patriots",
-    "Jets": "Jets", "New York Jets": "Jets",
-    "Jaguars": "Jaguars", "Jacksonville Jaguars": "Jaguars",
-    "Cardinals": "Cardinals", "Arizona Cardinals": "Cardinals",
-    "Texans": "Texans", "Houston Texans": "Texans",
-    "Browns": "Browns", "Cleveland Browns": "Browns",
-    "Bears": "Bears", "Chicago Bears": "Bears",
-    "Commanders": "Commanders", "Washington Commanders": "Commanders",
-    "Giants": "Giants", "New York Giants": "Giants",
-    "Packers": "Packers", "Green Bay Packers": "Packers",
-    "Broncos": "Broncos", "Denver Broncos": "Broncos",
-    "Lions": "Lions", "Detroit Lions": "Lions",
-    "Rams": "Rams", "Los Angeles Rams": "Rams",
-    "Panthers": "Panthers", "Carolina Panthers": "Panthers",
-    "Saints": "Saints", "New Orleans Saints": "Saints",
-    "Titans": "Titans", "Tennessee Titans": "Titans",
-    "49ers": "49ers", "San Francisco 49ers": "49ers",
-    "Vikings": "Vikings", "Minnesota Vikings": "Vikings",
-    "Cowboys": "Cowboys", "Dallas Cowboys": "Cowboys",
-    "Ravens": "Ravens", "Baltimore Ravens": "Ravens",
-    "Bengals": "Bengals", "Cincinnati Bengals": "Bengals",
-    "Colts": "Colts", "Indianapolis Colts": "Colts",
-    "Seahawks": "Seahawks", "Seattle Seahawks": "Seahawks"
-};
+import { NAME_MAP } from './teams.js';
 
 export const parseActionNetworkDump = (text) => {
     const updates = [];

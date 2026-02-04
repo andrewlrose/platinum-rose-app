@@ -1,37 +1,31 @@
 // File: src/components/modals/VerificationModal.jsx
+// Uses unified expert database from experts.js
 import React, { useState, useEffect } from 'react';
 import { Check, X, AlertTriangle, Save, User, Filter } from 'lucide-react';
+import { findExpert } from '../../lib/experts.js';
 
 export default function VerificationModal({ isOpen, onClose, onConfirm, previewData, experts, defaultExpertName }) {
   const [editedPicks, setEditedPicks] = useState([]);
 
   useEffect(() => {
     if (isOpen && previewData && previewData.picks) {
+        // Use findExpert from unified experts.js for default expert
         let defaultId = 99; 
         if (defaultExpertName) {
-            const exactMatch = experts.find(e => e.name.toLowerCase() === defaultExpertName.toLowerCase());
-            if (exactMatch) defaultId = exactMatch.id;
-            else {
-                const sourceMatch = experts.find(e => e.source.toLowerCase() === defaultExpertName.toLowerCase());
-                if (sourceMatch) defaultId = sourceMatch.id;
-            }
+            const foundExpert = findExpert(defaultExpertName, { sourceHint: defaultExpertName });
+            if (foundExpert) defaultId = foundExpert.id;
         }
 
         const initialized = previewData.picks.map(pick => {
             let assignedId = defaultId;
-            const rawName = (pick.expert || "").toLowerCase();
+            const rawName = (pick.expert || "");
             const selectionRaw = (pick.selection || "").toLowerCase();
             const analysisRaw = (pick.analysis || "").toLowerCase();
             const marketRaw = (pick.market || "").toLowerCase();
 
-            const nameMatch = experts.find(e => e.name.toLowerCase() === rawName || rawName.includes(e.name.toLowerCase()));
-            if (nameMatch) assignedId = nameMatch.id;
-
-            if (!nameMatch) {
-                if (rawName.includes("stucky")) { const m = experts.find(e => e.name.toLowerCase().includes("stuckey")); if(m) assignedId = m.id; }
-                if (rawName.includes("bessic") || rawName.includes("bezic") || rawName.includes("fezzik")) { const m = experts.find(e => e.name.toLowerCase().includes("fezzick")); if(m) assignedId = m.id; }
-                if (rawName.includes("rayburn")) { const m = experts.find(e => e.name.toLowerCase().includes("raybon")); if(m) assignedId = m.id; }
-            }
+            // Use unified findExpert to handle all name variations and misspellings
+            const expertMatch = findExpert(rawName, { sourceHint: defaultExpertName });
+            if (expertMatch) assignedId = expertMatch.id;
 
             let pickType = pick.type || 'Standard';
             const teaserKeywords = ['teaser', '6 point', '7 point', 'wong', 'pleaser'];

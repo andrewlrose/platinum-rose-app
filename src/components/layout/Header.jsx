@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDashboard, Trophy, Mic2, RefreshCw, Activity, ListFilter, Split, ShoppingBag, Save, UploadCloud, RotateCcw, Mic, Shield } from 'lucide-react';
+import { LayoutDashboard, Trophy, Mic2, RefreshCw, Activity, ListFilter, Split, ShoppingBag, Save, UploadCloud, RotateCcw, Mic, Shield, Banknote, BarChart3, TrendingUp } from 'lucide-react';
 
 export default function Header({ 
   activeTab, 
@@ -118,6 +118,9 @@ export default function Header({
         <div className="max-w-7xl mx-auto px-4 h-11 flex items-center justify-center gap-4 overflow-x-auto no-scrollbar">
             <NavTab id="dashboard" label="The Board" icon={LayoutDashboard} />
             <NavTab id="mycard" label="My Card" icon={ShoppingBag} />
+            <NavTab id="bankroll" label="Bankroll" icon={Banknote} />
+            <NavTab id="analytics" label="Analytics" icon={BarChart3} />
+            <NavTab id="odds" label="Live Odds" icon={TrendingUp} />
             <NavTab id="standings" label="Expert Standings" icon={Trophy} />
             <NavTab id="devlab" label="AI Dev Lab" icon={Mic2} />
         </div>
@@ -127,7 +130,9 @@ export default function Header({
       <div className="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 p-2 z-50 flex justify-around pb-safe">
           <button onClick={() => setActiveTab('dashboard')} className={`p-2 rounded-lg flex flex-col items-center gap-1 ${activeTab === 'dashboard' ? 'text-emerald-400' : 'text-slate-500'}`}><LayoutDashboard size={20}/><span className="text-[10px] font-bold">Board</span></button>
           <button onClick={() => setActiveTab('mycard')} className={`p-2 rounded-lg flex flex-col items-center gap-1 relative ${activeTab === 'mycard' ? 'text-emerald-400' : 'text-slate-500'}`}><ShoppingBag size={20}/>{cartCount > 0 && <span className="absolute top-1 right-2 w-2 h-2 bg-emerald-500 rounded-full"></span>}<span className="text-[10px] font-bold">Card</span></button>
-          <button onClick={onManage} className="p-2 rounded-lg flex flex-col items-center gap-1 text-amber-500"><Shield size={20}/><span className="text-[10px] font-bold">Experts</span></button>
+          <button onClick={() => setActiveTab('bankroll')} className={`p-2 rounded-lg flex flex-col items-center gap-1 ${activeTab === 'bankroll' ? 'text-emerald-400' : 'text-slate-500'}`}><Banknote size={20}/><span className="text-[10px] font-bold">Bankroll</span></button>
+          <button onClick={() => setActiveTab('odds')} className={`p-2 rounded-lg flex flex-col items-center gap-1 ${activeTab === 'odds' ? 'text-emerald-400' : 'text-slate-500'}`}><TrendingUp size={20}/><span className="text-[10px] font-bold">Odds</span></button>
+          <button onClick={() => setActiveTab('analytics')} className={`p-2 rounded-lg flex flex-col items-center gap-1 ${activeTab === 'analytics' ? 'text-emerald-400' : 'text-slate-500'}`}><BarChart3 size={20}/><span className="text-[10px] font-bold">Analytics</span></button>
           <button onClick={onAnalyze} className="p-2 rounded-lg flex flex-col items-center gap-1 text-indigo-500"><Mic size={20}/><span className="text-[10px] font-bold">Record</span></button>
       </div>
     </header>

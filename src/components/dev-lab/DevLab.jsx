@@ -43,14 +43,28 @@ export default function DevLab({ games, stats, onSimComplete, savedResults }) {
   const [ratings, setRatings] = useState({});
   const [ranks, setRanks] = useState({}); // 🔥 Store League Rankings
 
+  // New: tempo toggle + league mean
+  const [useTempo, setUseTempo] = useState(false);
+  const [leagueTempo, setLeagueTempo] = useState(1.0);
+
   const { current: currentGames } = groupGamesByWeek(games);
 
   // --- AUTOMATICALLY LOAD & RANK STATS ---
   useEffect(() => {
     if (stats && stats.length > 0) {
         const processedRatings = {};
+
+        // compute league mean (tempo values are plays/game)
+        const tempos = stats.map(s => parseFloat(s.tempo)).filter(v => !isNaN(v) && v > 0);
+        const meanTempo = tempos.length ? tempos.reduce((a,b) => a + b, 0) / tempos.length : 30.0;
+        setLeagueTempo(meanTempo);
+
         stats.forEach(teamStat => {
             if (teamStat.team) {
+                const rawTempo = parseFloat(teamStat.tempo) || meanTempo;
+                // 1.0 = league average; clip to avoid extremes
+                const tempoMult = Math.max(0.85, Math.min(1.15, rawTempo / meanTempo));
+
                 processedRatings[teamStat.team] = {
                     off: parseFloat(teamStat.off_epa || 0),
                     def: parseFloat(teamStat.def_epa || 0),
@@ -58,7 +72,7 @@ export default function DevLab({ games, stats, onSimComplete, savedResults }) {
                     offRush: parseFloat(teamStat.off_rush_epa || teamStat.off_epa || 0),
                     defPass: parseFloat(teamStat.def_pass_epa || teamStat.def_epa || 0),
                     defRush: parseFloat(teamStat.def_rush_epa || teamStat.def_epa || 0),
-                    tempo: 1.0
+                    tempo: tempoMult
                 };
             }
         });
@@ -98,19 +112,29 @@ export default function DevLab({ games, stats, onSimComplete, savedResults }) {
               
               if (hR && vR) {
                   const multiplier = 35; 
-                  const homeProj = 21.5 + (hR.off * multiplier) + (vR.def * multiplier) + 1.5; 
-                  const visProj = 21.5 + (vR.off * multiplier) + (hR.def * multiplier);
-                  
+
+                  // apply tempo multiplier optionally
+                  const hTempo = useTempo ? (hR.tempo || 1.0) : 1.0;
+                  const vTempo = useTempo ? (vR.tempo || 1.0) : 1.0;
+
+                  const baseHome = (hR.off * multiplier) + (vR.def * multiplier);
+                  const baseVis  = (vR.off * multiplier) + (hR.def * multiplier);
+
+                  const homeProj = 21.5 + (baseHome * hTempo) + 1.5; 
+                  const visProj  = 21.5 + (baseVis * vTempo);
+
                   let homeWins = 0, homeCovers = 0, overs = 0;
                   const iterations = 2000; 
                   const stdDev = 13.5; 
+                  const tempoStdScale = useTempo ? Math.sqrt((hTempo + vTempo) / 2) : 1.0;
+                  const adjStdDev = stdDev * tempoStdScale;
 
                   for(let i=0; i<iterations; i++) {
                       const u1 = Math.random(); const u2 = Math.random();
                       const z1 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
                       const z2 = Math.sqrt(-2.0 * Math.log(u1)) * Math.sin(2.0 * Math.PI * u2);
-                      const hScore = homeProj + (z1 * stdDev);
-                      const vScore = visProj + (z2 * stdDev);
+                      const hScore = homeProj + (z1 * adjStdDev);
+                      const vScore = visProj + (z2 * adjStdDev);
                       if (hScore > vScore) homeWins++;
                       if ((hScore - vScore) > (game.spread * -1)) homeCovers++;
                       if ((hScore + vScore) > game.total) overs++;
@@ -122,7 +146,7 @@ export default function DevLab({ games, stats, onSimComplete, savedResults }) {
                       visCoverPct: (100 - (homeCovers/iterations)*100).toFixed(1),
                       overPct: ((overs/iterations)*100).toFixed(1),
                       underPct: (100 - (overs/iterations)*100).toFixed(1),
-                      projHome: homeProj, // Keep raw for math, round for display
+                      projHome: homeProj,
                       projVis: visProj,
                       projTotal: (homeProj + visProj),
                       hasData: true
@@ -238,7 +262,12 @@ export default function DevLab({ games, stats, onSimComplete, savedResults }) {
              <h2 className="text-2xl font-bold text-white flex items-center gap-3"><Microscope className="text-emerald-400" /> <span className="bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-500">AI Dev Lab</span></h2>
              <p className="text-slate-400 text-sm mt-1">Monte Carlo Engine • Totals, Spreads & Player Props • {Object.keys(ratings || {}).length} Teams Loaded</p>
          </div>
-         <div className="flex gap-3">
+         <div className="flex gap-3 items-center">
+             <label className="flex items-center gap-2 text-sm text-slate-300">
+               <input type="checkbox" checked={useTempo} onChange={() => setUseTempo(!useTempo)} className="h-4 w-4" />
+               <span>Use Tempo Mult</span>
+               <span className="text-xs text-slate-500 ml-2">mean: {leagueTempo ? leagueTempo.toFixed(1) : '-'}</span>
+             </label>
              <button onClick={handleRunSims} disabled={isRunning} className="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-lg font-bold flex items-center gap-2 shadow-lg transition-all disabled:opacity-50">{isRunning ? <RefreshCw className="animate-spin" /> : <Play fill="currentColor" />}{isRunning ? "Running..." : "Run Simulation"}</button>
          </div>
       </div>

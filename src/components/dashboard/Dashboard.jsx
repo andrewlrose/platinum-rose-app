@@ -8,7 +8,9 @@ const Dashboard = ({
   // 🔥 NEW: Accept the results
   simResults = {},
   onGameClick, 
-  onShowHistory 
+  onShowHistory,
+  onShowInjuries,
+  onAddBankrollBet // NEW: For bankroll bet entry
 }) => {
 
   const visibleGames = schedule.map(game => {
@@ -48,6 +50,8 @@ const Dashboard = ({
               onPlaceBet={() => onGameClick(game)} 
               onAnalyze={() => onGameClick(game)}
               onShowHistory={onShowHistory}
+              onShowInjuries={() => onShowInjuries(game)}
+              onAddBankrollBet={onAddBankrollBet ? () => onAddBankrollBet(game) : undefined}
               experts={[]} 
               myBets={[]} 
             />

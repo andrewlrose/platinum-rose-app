@@ -8,10 +8,12 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-	"update-schedule": "node scripts/update-schedule.js"
+    "update-schedule": "node scripts/update-schedule.js"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",
+    "node-fetch": "^3.3.2",
+    "papaparse": "^5.5.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "recharts": "^3.6.0"

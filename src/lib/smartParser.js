@@ -1,39 +1,7 @@
 // src/lib/smartParser.js
+// Uses unified team database from teams.js
 
-const TEAM_MAP = {
-    "cardinals": "Cardinals", "ari": "Cardinals",
-    "falcons": "Falcons", "atl": "Falcons",
-    "ravens": "Ravens", "bal": "Ravens",
-    "bills": "Bills", "buf": "Bills",
-    "panthers": "Panthers", "car": "Panthers",
-    "bears": "Bears", "chi": "Bears",
-    "bengals": "Bengals", "cin": "Bengals",
-    "browns": "Browns", "cle": "Browns",
-    "cowboys": "Cowboys", "dal": "Cowboys",
-    "broncos": "Broncos", "den": "Broncos",
-    "lions": "Lions", "det": "Lions",
-    "packers": "Packers", "gb": "Packers", "gnb": "Packers",
-    "texans": "Texans", "hou": "Texans",
-    "colts": "Colts", "ind": "Colts",
-    "jaguars": "Jaguars", "jax": "Jaguars",
-    "chiefs": "Chiefs", "kc": "Chiefs",
-    "raiders": "Raiders", "lv": "Raiders", "lvr": "Raiders",
-    "chargers": "Chargers", "lac": "Chargers",
-    "rams": "Rams", "lar": "Rams",
-    "dolphins": "Dolphins", "mia": "Dolphins",
-    "vikings": "Vikings", "min": "Vikings",
-    "patriots": "Patriots", "ne": "Patriots", "nwe": "Patriots",
-    "saints": "Saints", "no": "Saints", "nor": "Saints",
-    "giants": "Giants", "nyg": "Giants",
-    "jets": "Jets", "nyj": "Jets",
-    "eagles": "Eagles", "phi": "Eagles",
-    "steelers": "Steelers", "pit": "Steelers",
-    "49ers": "49ers", "sf": "49ers", "sfo": "49ers",
-    "seahawks": "Seahawks", "sea": "Seahawks",
-    "buccaneers": "Buccaneers", "tb": "Buccaneers", "tam": "Buccaneers", "bucks": "Buccaneers",
-    "titans": "Titans", "ten": "Titans",
-    "commanders": "Commanders", "was": "Commanders", "wsh": "Commanders", "washington": "Commanders"
-};
+import { TEAM_MAP } from './teams.js';
 
 const SYSTEM_PROMPT = `
 You are an expert sports betting analyst AI. Your job is to read a transcript of a betting podcast and extract every explicit wager made by the hosts.

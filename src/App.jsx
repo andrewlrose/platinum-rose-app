@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 // --- IMPORTS ---
-import { INITIAL_EXPERTS } from './lib/constants'; 
+import { INITIAL_EXPERTS, findExpert } from './lib/experts'; 
+import { TEAM_ALIASES, normalizeTeam, getTeamLogo, getDomeTeams } from './lib/teams';
+import { fetchLiveOdds } from './lib/oddsApi';
+import { fetchAllInjuries } from './lib/injuries';
 import Header from './components/layout/Header';
 import Dashboard from './components/dashboard/Dashboard';
 import Standings from './components/dashboard/Standings';
@@ -16,47 +19,23 @@ import AudioUploadModal from './components/modals/AudioUploadModal';
 import ReviewPicksModal from './components/modals/ReviewPicksModal';
 import BulkImportModal from './components/modals/BulkImportModal'; 
 import ExpertManagerModal from './components/modals/ExpertManagerModal'; 
+import InjuryReportModal from './components/modals/InjuryReportModal';
+import UnitCalculatorModal from './components/modals/UnitCalculatorModal';
+import BetEntryModal from './components/modals/BetEntryModal';
+import BetImportModal from './components/modals/BetImportModal';
+import PendingBetsModal from './components/modals/PendingBetsModal';
+import EditBetModal from './components/modals/EditBetModal';
+import BankrollDashboard from './components/bankroll/BankrollDashboard';
+import AnalyticsDashboard from './components/analytics/AnalyticsDashboard';
+import OddsCenter from './components/odds/OddsCenter'; 
 
-// --- TEAM ALIAS DICTIONARY ---
-const TEAM_ALIASES = {
-    "cardinals": "cardinals", "arizona": "cardinals", "cards": "cardinals",
-    "falcons": "falcons", "atlanta": "falcons",
-    "ravens": "ravens", "baltimore": "ravens",
-    "bills": "bills", "buffalo": "bills",
-    "panthers": "panthers", "carolina": "panthers",
-    "bears": "bears", "chicago": "bears",
-    "bengals": "bengals", "cincinnati": "bengals", "cincy": "bengals",
-    "browns": "browns", "cleveland": "browns",
-    "cowboys": "cowboys", "dallas": "cowboys",
-    "broncos": "broncos", "denver": "broncos",
-    "lions": "lions", "detroit": "lions",
-    "packers": "packers", "green bay": "packers",
-    "texans": "texans", "houston": "texans",
-    "colts": "colts", "indianapolis": "colts", "indy": "colts",
-    "jaguars": "jaguars", "jacksonville": "jaguars", "jags": "jaguars",
-    "chiefs": "chiefs", "kansas city": "chiefs", "kc": "chiefs",
-    "raiders": "raiders", "las vegas": "raiders", "vegas": "raiders",
-    "chargers": "chargers", "los angeles chargers": "chargers", "la chargers": "chargers", "bolts": "chargers",
-    "rams": "rams", "los angeles rams": "rams", "la rams": "rams",
-    "dolphins": "dolphins", "miami": "dolphins", "fins": "dolphins",
-    "vikings": "vikings", "minnesota": "vikings", "minny": "vikings",
-    "patriots": "patriots", "new england": "patriots", "pats": "patriots",
-    "saints": "saints", "new orleans": "saints",
-    "giants": "giants", "ny giants": "giants", "new york giants": "giants", "gmen": "giants",
-    "jets": "jets", "ny jets": "jets", "new york jets": "jets", "gang green": "jets",
-    "eagles": "eagles", "philadelphia": "eagles", "philly": "eagles",
-    "steelers": "steelers", "pittsburgh": "steelers",
-    "49ers": "49ers", "san francisco": "49ers", "niners": "49ers", "sf": "49ers",
-    "seahawks": "seahawks", "seattle": "seahawks",
-    "buccaneers": "buccaneers", "tampa bay": "buccaneers", "tampa": "buccaneers", "bucs": "buccaneers",
-    "titans": "titans", "tennessee": "titans",
-    "commanders": "commanders", "washington": "commanders", "commies": "commanders"
-};
+// TEAM_ALIASES is now imported from './lib/teams'
 
 function App() {
   const [schedule, setSchedule] = useState([]); // 🔥 Dynamic Schedule State
   const [stats, setStats] = useState([]);
-  const [splits, setSplits] = useState({}); 
+  const [splits, setSplits] = useState({});
+  const [injuries, setInjuries] = useState({}); // 🏥 Injury Reports
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedGame, setSelectedGame] = useState(null);
@@ -70,6 +49,13 @@ function App() {
   const [showReview, setShowReview] = useState(false);   
   const [showImport, setShowImport] = useState(false);   
   const [showExpertMgr, setShowExpertMgr] = useState(false); 
+  const [showInjuryReport, setShowInjuryReport] = useState(false);
+  const [showUnitCalculator, setShowUnitCalculator] = useState(false); 
+  const [showBetEntry, setShowBetEntry] = useState(false);
+  const [showBetImport, setShowBetImport] = useState(false);
+  const [showPendingBets, setShowPendingBets] = useState(false);
+  const [showEditBet, setShowEditBet] = useState(false);
+  const [selectedBetForEdit, setSelectedBetForEdit] = useState(null); 
 
   const [myBets, setMyBets] = useState([]);
   const [simResults, setSimResults] = useState({});
@@ -78,52 +64,115 @@ function App() {
   const [stagedPicks, setStagedPicks] = useState([]); 
 
   // --- DYNAMIC DATA INGESTION ---
+// --- DYNAMIC DATA INGESTION ---
   useEffect(() => {
-    console.log("🚀 Booting Up: Fetching Live Schedule & Stats...");
-    
+    console.log("🚀 Booting Up: Fetching Live Schedule & Odds...");
+
     Promise.all([
-        // 1. Fetch Schedule from public/schedule.json
-        fetch("./schedule.json")
+        // 1. Schedule (Local - provides game IDs, times, team names)
+        fetch("./schedule.json").then(r => r.ok ? r.json() : []).catch(() => []),
+
+        // 2. Live Odds from TheOddsAPI (provides real-time spreads, totals, moneylines)
+        fetchLiveOdds().catch(err => {
+            console.warn("⚠️ Live odds fetch failed:", err);
+            return [];
+        }),
+
+        // 3. Stats (External -> Now Safe if Missing)
+        fetch("./weekly_stats.json")
             .then(r => {
-                if (!r.ok) throw new Error("Missing schedule.json");
+                if (!r.ok) throw new Error("Stats not found");
                 return r.json();
             })
             .catch(err => {
-                console.error("⚠️ SCHEDULE LOAD FAILED:", err);
-                return []; // Return empty array on fail to prevent crash
+                console.warn("⚠️ Stats load failed (using empty defaults):", err);
+                return [];
             }),
 
-        // 2. Fetch Stats
-        fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-data/main/weekly_stats.json")
-            .then(r => r.json()),
+        // 4. Splits (Updated to NEW Repo Name: NFL_Platinum_Rose)
+        fetch("https://raw.githubusercontent.com/andrewlrose/NFL_Platinum_Rose/main/betting_splits.json")
+            .then(r => {
+                if (!r.ok) throw new Error("Splits not found");
+                return r.json();
+            })
+            .catch(err => {
+                console.warn("⚠️ Splits load failed:", err);
+                return {}; 
+            })
+    ]).then(([scheduleData, liveOddsData, statsData, splitsData]) => {
+        console.log(`✅ Schedule Loaded: ${scheduleData.length} games`);
+        console.log(`✅ Live Odds Loaded: ${liveOddsData.length} games from TheOddsAPI`);
         
-        // 3. Fetch Splits
-        fetch("https://raw.githubusercontent.com/andrewlrose/platinum-rose-app/main/betting_splits.json")
-            .then(r => r.json())
-            .catch(() => ({}))
-    ]).then(([scheduleData, statsData, splitsData]) => {
+        // Merge live odds into schedule (match by team abbreviation first, then name)
+        const mergedSchedule = scheduleData.map(game => {
+            const homeAbbrev = (game.home || '').toUpperCase();
+            const visitorAbbrev = (game.visitor || '').toUpperCase();
+            
+            // Find matching live odds - try abbreviation first, then name matching
+            const liveGame = liveOddsData.find(lg => {
+                // Match by abbreviation (most reliable)
+                if (lg.home_abbrev && lg.visitor_abbrev) {
+                    return lg.home_abbrev === homeAbbrev && lg.visitor_abbrev === visitorAbbrev;
+                }
+                // Fallback to name matching
+                const lgHome = (lg.home || '').toLowerCase();
+                const lgVisitor = (lg.visitor || '').toLowerCase();
+                const homeClean = homeAbbrev.toLowerCase();
+                const visitorClean = visitorAbbrev.toLowerCase();
+                return (lgHome.includes(homeClean) || homeClean.includes(lgHome)) &&
+                       (lgVisitor.includes(visitorClean) || visitorClean.includes(lgVisitor));
+            });
+            
+            if (liveGame) {
+                console.log(`🔄 Live odds merged: ${game.visitor} @ ${game.home} → Spread: ${liveGame.spread}, Total: ${liveGame.total}, ML: ${liveGame.visitor_ml}/${liveGame.home_ml}`);
+                return {
+                    ...game,
+                    spread: liveGame.spread ?? game.spread,
+                    total: liveGame.total ?? game.total,
+                    home_ml: liveGame.home_ml || null,
+                    visitor_ml: liveGame.visitor_ml || null,
+                    oddsSource: 'TheOddsAPI'
+                };
+            }
+            console.warn(`⚠️ No live odds found for ${game.visitor} @ ${game.home}, using ESPN fallback`);
+            return { ...game, oddsSource: 'ESPN' };
+        });
         
-        if (scheduleData.length === 0) {
-            alert("CRITICAL: schedule.json is empty or missing. Please upload the schedule file.");
-        } else {
-            console.log(`✅ Schedule Ingested: ${scheduleData.length} games.`);
-        }
-
-        setSchedule(scheduleData);
+        // Set initial data
+        setSchedule(mergedSchedule);
         setStats(statsData);
         setSplits(splitsData || {});
+        
+        // Fetch injuries for all teams in schedule (separate async call)
+        fetchAllInjuries(mergedSchedule)
+            .then(injuryData => {
+                console.log(`🏥 Injuries loaded for ${Object.keys(injuryData).length} teams`);
+                setInjuries(injuryData);
+            })
+            .catch(err => console.warn("⚠️ Injury fetch failed:", err))
+            .finally(() => setLoading(false));
+            
+    }).catch(err => {
+        console.error("CRITICAL Error loading data:", err);
         setLoading(false);
-    }).catch(err => console.error("Error loading data:", err));
+    });
   }, []);
-
+  
+  
   const gamesWithSplits = schedule.map(game => {
       const gameData = splits[game.id] || splits[String(game.id)];
       const expertData = expertConsensus[game.id] || { expertPicks: { spread: [], total: [] } };
+      const homeInjuries = injuries[game.home] || [];
+      const visitorInjuries = injuries[game.visitor] || [];
       return {
           ...game,
           splits: gameData?.splits || null,
           contestSpread: contestLines[game.id] || null,
-          consensus: expertData 
+          consensus: expertData,
+          injuries: {
+              home: homeInjuries,
+              visitor: visitorInjuries
+          }
       };
   });
 
@@ -295,10 +344,13 @@ function App() {
     <div className="min-h-screen bg-[#0f0f0f] text-gray-200 font-sans pb-20 selection:bg-[#00d2be] selection:text-black">
       <Header activeTab={activeTab} setActiveTab={setActiveTab} cartCount={myBets.length} onSyncOdds={() => console.log("Sync")} onOpenSplits={() => setShowPulse(true)} onOpenTeasers={() => setShowTeasers(true)} onOpenContest={() => setShowContest(true)} onImport={() => setShowImport(true)} onAnalyze={() => setShowAudio(true)} onManage={() => setShowExpertMgr(true)} onSave={() => alert("Save functionality coming soon")} onReset={() => { if(window.confirm("Reset all picks?")) setMyBets([]); }}/>
       <main className="max-w-7xl mx-auto px-4 py-8">
-        {activeTab === 'dashboard' && <div className="animate-in fade-in zoom-in duration-300"><Dashboard schedule={gamesWithSplits} stats={stats} simResults={simResults} onGameClick={setSelectedGame} /></div>}
+        {activeTab === 'dashboard' && <div className="animate-in fade-in zoom-in duration-300"><Dashboard schedule={gamesWithSplits} stats={stats} simResults={simResults} onGameClick={setSelectedGame} onShowInjuries={(game) => { setSelectedGame(game); setShowInjuryReport(true); }} onAddBankrollBet={(game) => { setSelectedGame(game); setShowBetEntry(true); }} /></div>}
         {activeTab === 'standings' && <Standings experts={INITIAL_EXPERTS} />}
         {activeTab === 'mycard' && <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-300"><MyCardModal bets={myBets} onRemoveBet={removeBet} onLockBets={handleLockBets} onClearCard={() => setMyBets([])} /></div>}
         {activeTab === 'devlab' && <DevLab games={schedule} stats={stats} savedResults={simResults} onSimComplete={setSimResults} />}
+        {activeTab === 'bankroll' && <div className="animate-in fade-in zoom-in duration-300"><BankrollDashboard onAddBet={() => setShowBetEntry(true)} onShowCalculator={() => setShowUnitCalculator(true)} onImportBets={() => setShowBetImport(true)} onShowPending={() => setShowPendingBets(true)} onShowSettings={() => {}} /></div>}
+        {activeTab === 'analytics' && <div className="animate-in fade-in zoom-in duration-300"><AnalyticsDashboard /></div>}
+        {activeTab === 'odds' && <div className="animate-in fade-in zoom-in duration-300"><OddsCenter /></div>}
       </main>
       <MatchupWizardModal isOpen={!!selectedGame} game={selectedGame} stats={stats} currentWizardData={selectedGame ? (expertConsensus[selectedGame.id] || null) : null} onClose={() => setSelectedGame(null)} onBet={(id, type, sel, line) => { handleBet(id, type, sel, line); setSelectedGame(null); }} />
       <PulseModal isOpen={showPulse} onClose={() => setShowPulse(false)} games={gamesWithSplits} />
@@ -309,6 +361,47 @@ function App() {
       <ReviewPicksModal isOpen={showReview} onClose={() => setShowReview(false)} stagedPicks={stagedPicks} onConfirm={handleConfirmPicks} onDiscard={(idx) => setStagedPicks(stagedPicks.filter((_, i) => i !== idx))} />
       <BulkImportModal isOpen={showImport} onClose={() => setShowImport(false)} onImport={handleBulkImport} />
       <ExpertManagerModal isOpen={showExpertMgr} onClose={() => setShowExpertMgr(false)} experts={INITIAL_EXPERTS} expertConsensus={expertConsensus} onUpdatePick={handleUpdatePick} onDeletePick={handleDeletePick} onClearExpert={handleClearExpert} />
+      <InjuryReportModal isOpen={showInjuryReport} onClose={() => setShowInjuryReport(false)} game={selectedGame} injuries={injuries} />
+      <UnitCalculatorModal isOpen={showUnitCalculator} onClose={() => setShowUnitCalculator(false)} />
+      <BetEntryModal 
+        isOpen={showBetEntry} 
+        onClose={() => setShowBetEntry(false)} 
+        selectedGame={selectedGame} 
+        schedule={schedule}
+        refreshBankroll={() => {}} 
+      />
+      <BetImportModal 
+        isOpen={showBetImport} 
+        onClose={() => setShowBetImport(false)} 
+        onImportComplete={(betId, bet) => {
+          console.log('Bet imported:', betId, bet);
+          alert('Bet imported successfully!');
+        }} 
+      />
+      
+      <PendingBetsModal 
+        isOpen={showPendingBets}
+        onClose={() => setShowPendingBets(false)}
+        onEditBet={(bet) => {
+          setSelectedBetForEdit(bet);
+          setShowEditBet(true);
+        }}
+      />
+      
+      <EditBetModal 
+        isOpen={showEditBet}
+        onClose={() => {
+          setShowEditBet(false);
+          setSelectedBetForEdit(null);
+        }}
+        bet={selectedBetForEdit}
+        schedule={schedule}
+        onBetUpdated={() => {
+          // Force refresh of pending bets when we return
+          setShowPendingBets(false);
+          setTimeout(() => setShowPendingBets(true), 100);
+        }}
+      />
     </div>
   );
 }
